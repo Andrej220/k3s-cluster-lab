@@ -9,6 +9,7 @@ BASE_IMAGE := $(VM_DIR)$(PROJECT_NAME).qcow2
 SNAPSHOT_IMAGE := $(VM_DIR)$(PROJECT_NAME)_snapshot.qcow2  
 CLOUD_INIT_DIR := ./cloud-init/
 CLOUD_INIT_ISO := $(CLOUD_INIT_DIR)cloud-init.iso
+VMRUN_SCRIPT :=./vm-runner/vmrun
 
 DIRECTORIES := $(VM_DIR) $(CLOUD_INIT_DIR) 
 
@@ -35,7 +36,13 @@ disk4_SIZE = $(DISK_SIZE)
 
 define launcher =
 #!/bin/bash 
-PROJECT_NAME=$(PROJECT_NAME) RAM=$(RAM) CPUS=$(CPUS) HOSTPORT=$(HOSTPORT) VMPORT=$(VMPORT) VM_DIR=$(VM_DIR) ./vmrun $$1
+source ./bash_utils/parse_yaml.sh
+if declare -F parse_yaml > /dev/null; then
+    echo "Function exists"
+else
+    echo "Function does not exist"
+fi
+PROJECT_NAME=$(PROJECT_NAME) RAM=$(RAM) CPUS=$(CPUS) HOSTPORT=$(HOSTPORT) VMPORT=$(VMPORT) VM_DIR=$(VM_DIR) $(VMRUN_SCRIPT) $$1
 endef
 
 .PHONY: prepare-dirs 
@@ -65,7 +72,7 @@ snapshot:
 	@echo "Snapshot $(SNAPSHOT_IMAGE) created in $(VM_DIR)."
 
 .PHONY: revert
-revert: snapshot makeiso clean_rook_disks create_rook_disks
+revert: snapshot makeiso clean_rook_disks create_rook_disks make-launcher
 	@echo "Reverting to original image..."
 
 .PHONY: clean_rook_disks
