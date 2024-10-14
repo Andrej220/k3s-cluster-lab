@@ -1,0 +1,7 @@
+project_name: "k3s"
+ram: "8G"
+cpus: "4"
+hostport: "8022"
+vmport: "22"
+vm_dir: "./vm_data"
+bridge_name: "br1"
