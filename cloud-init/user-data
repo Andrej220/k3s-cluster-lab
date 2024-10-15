@@ -46,7 +46,7 @@ runcmd:
   - 'kubectl apply -f /root/rook/deploy/examples/cluster.yaml'
   
   - |
-    echo "Waiting for CephCluster to become healthy..."
+    echo "Waiting for CephCluster to become ready..."
     until kubectl -n rook-ceph get cephcluster rook-ceph -o jsonpath='{.status.phase}' | grep -q "Ready"; do
       echo "CephCluster is not ready yet, waiting..."
       sleep 10

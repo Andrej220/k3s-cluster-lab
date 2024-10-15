@@ -36,14 +36,10 @@ disk4_SIZE = $(DISK_SIZE)
 
 define launcher =
 #!/bin/bash 
-source ./bash_utils/parse_yaml.sh
-if declare -F parse_yaml > /dev/null; then
-    echo "Function exists"
-else
-    echo "Function does not exist"
-fi
-PROJECT_NAME=$(PROJECT_NAME) RAM=$(RAM) CPUS=$(CPUS) HOSTPORT=$(HOSTPORT) VMPORT=$(VMPORT) VM_DIR=$(VM_DIR) $(VMRUN_SCRIPT) $$1
+PROJECT_NAME=$(PROJECT_NAME) RAM=$(RAM) CPUS=$(CPUS) HOSTPORT=$(HOSTPORT) VMPORT=$(VMPORT) VM_DIR=$(VM_DIR) $(VMRUN_SCRIPT) -c ./config.yml $$1
 endef
+
+ 
 
 .PHONY: prepare-dirs 
 prepare-dirs:
