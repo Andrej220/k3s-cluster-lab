@@ -2,25 +2,34 @@
 default: prepare-vm
 
 UBUNTU_VERSION ?= jammy
-PROJECT_NAME ?= k3
-PROJECT_DIR := $(CURDIR)
-VM_DIR := $(PROJECT_DIR)/vm/
-BASE_IMAGE := $(VM_DIR)$(PROJECT_NAME).qcow2
-SNAPSHOT_IMAGE := $(VM_DIR)$(PROJECT_NAME)_snapshot.qcow2  
-CLOUD_INIT_DIR := ./cloud-init/
-CLOUD_INIT_ISO := $(CLOUD_INIT_DIR)cloud-init.iso
+YAML_PARSER := ./utils/parse_yaml.sh
+CONFIG_FILE := ./config.yml
 VMRUN_SCRIPT :=./vm-runner/vmrun
+CLOUD_INIT_DIR := ./cloud-init/
+TEMP_FILE = /tmp/make_vars.mk
+
+include $(shell bash -c 'source $(YAML_PARSER); parse_yaml $(CONFIG_FILE) > $(TEMP_FILE); echo $(TEMP_FILE)')
+#$(shell rm -f $(TEMP_FILE))
+#$(eval $(shell bash -c 'source $(YAML_PARSER); parse_yaml $(CONFIG_FILE)'))
+
+PROJECT_NAME = $(if $(strip $(project_name)),$(strip $(subst ",,$(project_name))),k3)
+PROJECT_DIR := $(CURDIR)
+VM_DIR := $(if $(strip $(vm_dir)),$(strip $(subst ",,$(vm_dir))),./vm/)
+BASE_IMAGE := $(VM_DIR)$(PROJECT_NAME).qcow2
+SNAPSHOT_IMAGE := $(VM_DIR)$(PROJECT_NAME)_snapshot.qcow2
+SNAPSHOT_IMAGE_NAME := $(PROJECT_NAME)_snapshot.qcow2
+CLOUD_INIT_ISO := $(CLOUD_INIT_DIR)cloud-init.iso
 
 DIRECTORIES := $(VM_DIR) $(CLOUD_INIT_DIR) 
 
 IMAGE_URL_BASE = https://cloud-images.ubuntu.com/$(UBUNTU_VERSION)/current
 IMAGE_NAME := $(UBUNTU_VERSION)-server-cloudimg-amd64.img
 
-HOSTPORT ?= 8022
-VMPORT ?= 22
-CPUS ?= 2
-RAM ?= 4G
-DISK_SIZE ?= 200G
+HOSTPORT = $(if $(strip $(hostport)),$(hostport),8022)
+VMPORT = $(if $(strip $(vmport)),$(vmport),22)
+CPUS = $(if $(strip $(cpus)),$(cpus),2)
+RAM = $(if $(strip $(ram)),$(ram),8022)
+DISK_SIZE = $(if $(strip $(disksize)),$(disksize),200G)
 
 IMG_FORMAT = qcow2
 IMAGES = \
@@ -61,15 +70,14 @@ download-cloud-image:
 
 .PHONY: snapshot
 snapshot:
-	@rm -f $(SNAPSHOT_IMAGE)
-	@echo "Old snapshot deleted."
+	@rm -f $(SNAPSHOT_IMAGE) &&	echo "Old snapshot deleted."
 	@echo "Creating snapshot $(SNAPSHOT_IMAGE) based on $(BASE_IMAGE) ..."
-	@qemu-img create -f qcow2 -b $(BASE_IMAGE) -F qcow2 $(SNAPSHOT_IMAGE) || { echo "Snapshot creation failed"; exit 1; }
-	@echo "Snapshot $(SNAPSHOT_IMAGE) created in $(VM_DIR)."
+	qemu-img create -f qcow2 -b $(abspath $(BASE_IMAGE)) -F qcow2 "$(SNAPSHOT_IMAGE)" || { echo "Snapshot create failed"; exit 1; }
+	@echo "Snapshot $(SNAPSHOT_IMAGE_NAME) created in $(VM_DIR)"
 
 .PHONY: revert
 revert: snapshot makeiso clean_rook_disks create_rook_disks make-launcher
-	@echo "Reverting to original image..."
+	#@echo "Reverting to original image..."
 
 .PHONY: clean_rook_disks
 clean_rook_disks:
@@ -79,7 +87,7 @@ clean_rook_disks:
 .PHONY: clean
 clean:
 	@echo "Cleaning ..."
-	@rm -f $(VM_DIR)/*
+	@rm -rf $(VM_DIR)
 	@echo "$(VM_DIR) has been cleaned"
 	@rm -f $(CLOUD_INIT_ISO)
 	@echo "$(CLOUD_INIT_ISO) has been deleted"
