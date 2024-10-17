@@ -1,6 +1,5 @@
 #cloud-config
 
-# Enable root user and set password
 users:
   - name: user
     lock_passwd: false
@@ -10,38 +9,33 @@ users:
       - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDZgBuA47ycWCP1GGw2ApW4VeTWHBDjddw84w4GLP39KX6fxxq7JXEwmkrCMluYfIjT307WF/2Bi63eLEAakPJOppU4bs6i8bdJfve8DbBBqWwHTLqKMu9RSF8+Ff1s6GzZDsjMzFcFyVghjs2TY4TDtTVGnBz+5DIllKNpW0cCPIjcKyG6AB5Arb09YAX7e9t6eoknQWKnrY401kpKWrrfiNpI/sJ9F+AhSQi8A0gMveqgwNob0bxnWDtNOaukoXrgiuED0WjZFkBiHle4HRI3g4/xJh3nsuW/62fdVn+5ry3fnMjZy1YIbo2RnDLvfAzgOkowC04TRYITIsofZ5vLKV8JhqjiLBU1t+jJk2VurVk1i+CO/E2H52MpprqWTyBdZNPgpVYj6Rq/QKm3elOn+psTHAz1VE/0Td3QRoQ8Qv1Fzst6eRlfjbm7mP1ucyTIlU496MunS2ABbnCtoyVTekDqHsKAk/cWxBQavxnBIzTEbnVr2A4Ol32awyPkzTbcsw+j7PaZSKIgisAv0YD8l5WqpZ6CU1o+hcaMVoxn7JG7EwWiX7hL+hC+9f4VEXVtWPAv3ru9CZqdzMlneKRbIq+yJymXABvtuLmavbEp1GDldntXqBS6ZbgqWwDIf1b55FgRHglo9AP+EZgvYPFPInwmh+dqiwy3wWrtm8uerQ== master@localhost -p 5253, suse
     sudo: ALL=(ALL) NOPASSWD:ALL
 
-
-# Enable SSH password authentication
 ssh_pwauth: true
 
-# Update and upgrade packages
 package_update: true
 package_upgrade: true
 
-# Install OpenSSH Server if not already installed
 packages:
   - openssh-server
   - curl
 
-# Start and enable the SSH service
+  # Start and enable the SSH service
 runcmd:
-    #ssh 
+  #ssh 
   - [ systemctl, enable, ssh ]
   - [ systemctl, start, ssh ]
     # K3S
   - 'curl -sfL https://get.k3s.io | sh -'
 
-    #rook-ceph
+  #rook-ceph
   - 'export PATH=$PATH:/usr/local/bin; until kubectl get nodes; do sleep 5; done'
   - 'git clone --single-branch  https://github.com/rook/rook.git /root/rook'
   - 'sed -i "s/^\(\s*\)count: 3/\1count: 1/" /root/rook/deploy/examples/cluster.yaml'
-  #- 'sed -i "/^ *storage:/a\    failureDomain: osd" /root/rook/deploy/examples/cluster.yaml'  
 
   - 'kubectl apply -f /root/rook/deploy/examples/crds.yaml'
   - 'kubectl apply -f /root/rook/deploy/examples/common.yaml'
   - 'kubectl apply -f /root/rook/deploy/examples/operator.yaml'
 
-     # wait for rook-ceph to finish installation
+  # wait for rook-ceph to finish installation
   - 'kubectl -n rook-ceph rollout status deploy/rook-ceph-operator'
   - 'kubectl apply -f /root/rook/deploy/examples/cluster.yaml'
   
@@ -57,15 +51,11 @@ runcmd:
 
   - 'kubectl apply -f /root/rook/deploy/examples/toolbox.yaml'
 
- # Wait for the toolbox pod to be ready
+  # Wait for the toolbox pod to be ready
   - 'kubectl -n rook-ceph rollout status deploy/rook-ceph-tools'
-# Execute the two Ceph commands in the toolbox
+
+  # Change replication rules, to make it work as a single node
   - 'kubectl -n rook-ceph exec deploy/rook-ceph-tools -- ceph osd crush rule create-replicated replicated_rule_osd default osd'
   - 'kubectl -n rook-ceph exec deploy/rook-ceph-tools -- ceph osd pool set .mgr crush_rule replicated_rule_osd'
 
-# 
-    # Graphana
-
-
-# Optional: Final message after cloud-init is done
 final_message: "Cloud-init finished."

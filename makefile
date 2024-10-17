@@ -8,9 +8,8 @@ VMRUN_SCRIPT :=./vm-runner/vmrun
 CLOUD_INIT_DIR := ./cloud-init/
 TEMP_FILE = /tmp/make_vars.mk
 
+#This parses yml config file and includes variables 
 include $(shell bash -c 'source $(YAML_PARSER); parse_yaml $(CONFIG_FILE) > $(TEMP_FILE); echo $(TEMP_FILE)')
-#$(shell rm -f $(TEMP_FILE))
-#$(eval $(shell bash -c 'source $(YAML_PARSER); parse_yaml $(CONFIG_FILE)'))
 
 PROJECT_NAME = $(if $(strip $(project_name)),$(strip $(subst ",,$(project_name))),k3)
 PROJECT_DIR := $(CURDIR)
@@ -47,8 +46,6 @@ define launcher =
 #!/bin/bash 
 PROJECT_NAME=$(PROJECT_NAME) RAM=$(RAM) CPUS=$(CPUS) HOSTPORT=$(HOSTPORT) VMPORT=$(VMPORT) VM_DIR=$(VM_DIR) $(VMRUN_SCRIPT) -c ./config.yml $$1
 endef
-
- 
 
 .PHONY: prepare-dirs 
 prepare-dirs:
@@ -109,7 +106,6 @@ create_rook_disks:
 %.qcow2: 
 	@qemu-img create -f $(IMG_FORMAT) $@ $($(*F)_SIZE)
 
-
 .PHONY: make-launcher 
 make-launcher:  
 	$(file >$(PROJECT_NAME)_run, $(launcher)) 
@@ -117,7 +113,6 @@ make-launcher:
 
 .PHONY: prepare-vm
 prepare-vm: prepare-dirs download-cloud-image makeiso snapshot create_rook_disks make-launcher 
-
 
 .PHONY: help
 help:
