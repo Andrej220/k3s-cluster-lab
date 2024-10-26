@@ -6,3 +6,5 @@ vmport: "22"
 vm_dir: ./vm/
 bridge_name: "br0"
 disksize: "200G"
+interface: "eth1"
+tapinterface: "tap0"
