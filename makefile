@@ -18,6 +18,10 @@ BASE_IMAGE := $(VM_DIR)$(PROJECT_NAME).qcow2
 SNAPSHOT_IMAGE := $(VM_DIR)$(PROJECT_NAME)_snapshot.qcow2
 SNAPSHOT_IMAGE_NAME := $(PROJECT_NAME)_snapshot.qcow2
 CLOUD_INIT_ISO := $(CLOUD_INIT_DIR)cloud-init.iso
+USER_DATA := $(CLOUD_INIT_DIR)user-data
+USER_DATA_YAML := $(CLOUD_INIT_DIR)user-data.yaml
+USER_DATA_MERGET := $(CLOUD_INIT_DIR)user-data-merged.yaml
+GRAFANA_CONTENT := \#GRAFANA_CONTENT
 
 DIRECTORIES := $(VM_DIR) $(CLOUD_INIT_DIR) 
 
@@ -88,12 +92,16 @@ clean:
 	@echo "$(VM_DIR) has been cleaned"
 	@rm -f $(CLOUD_INIT_ISO)
 	@echo "$(CLOUD_INIT_ISO) has been deleted"
+	@rm -f $(USER_DATA)
+	@echo "$(USER_DATA) has been deleted"
 	@rm -f $(PROJECT_NAME)_run
 	@echo "$(PROJECT_NAME)_run has been deleted"
 
 .PHONY: makeiso
 makeiso:
 	@echo "Making cloud-init iso"
+	@awk '/$(GRAFANA_CONTENT)/ { system("cat $(CLOUD_INIT_DIR)grafana.yaml"); next } { print }' $(USER_DATA_YAML) > $(USER_DATA_MERGET)
+	@mv $(USER_DATA_MERGET) $(USER_DATA)
 	@xorriso -as mkisofs -output $(CLOUD_INIT_ISO) -volid cidata -joliet -rock $(CLOUD_INIT_DIR)user-data $(CLOUD_INIT_DIR)meta-data
 	@echo "$(CLOUD_INIT_ISO) has been created"
 
