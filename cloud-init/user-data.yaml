@@ -24,9 +24,8 @@ write_files:
     content: |
       #GRAFANA_CONTENT
 
-
     permissions: '0644'
-    owner: user:user
+    owner: root:root
 
 runcmd:
   #ssh 

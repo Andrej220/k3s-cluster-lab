@@ -74,11 +74,11 @@ prepare-dirs:
 .PHONY: download-cloud-image
 download-cloud-image:
 	@echo "Preparing to download Ubuntu $(UBUNTU_VERSION) cloud image..."
-	@mkdir -p $(VM_DIR)
-	@if [ ! -f "$(BASE_IMAGE)"" ]; then \
+	@mkdir -p "$(VM_DIR)"
+	@if [ ! -f "$(BASE_IMAGE)" ]; then \
 		echo "Downloading latest $(UBUNTU_VERSION) cloud image to $(VM_DIR)..."; \
 		$(CURL) "$(BASE_IMAGE)" "$(IMAGE_URL_BASE)/$(IMAGE_NAME)" || { echo "Download failed"; exit 1; }; \
-		$(QEMU_IMG) resize "$(BASE_IMAGE)"" +18G; \
+		$(QEMU_IMG) resize "$(BASE_IMAGE)" +18G; \
 		echo "Download completed: $(BASE_IMAGE)"; \
 	else \
 		echo "Image already exists: $(BASE_IMAGE)"; \
@@ -94,7 +94,11 @@ snapshot:
 .PHONY: stopvm
 stopvm:
 	@if [ -f "./$(PROJECT_NAME)_run" ]; then \
-		"./$(PROJECT_NAME)_run" stop; \
+		if  "./$(PROJECT_NAME)_run" status | grep -q "running"  ; then \
+			"./$(PROJECT_NAME)_run" stop; \
+			echo "VM has stopped" ;\
+		fi
+			echo "VM is not running"; \
 	fi
 
 .PHONY: revert
