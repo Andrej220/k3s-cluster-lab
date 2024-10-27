@@ -1,8 +1,13 @@
 project_name: k3s
 ram: "8G"
 cpus: "6"
-hostport: "8022"
-vmport: "22"
+hostports:
+  - host: 8022
+    vm: 22
+  - host: 9090
+    vm: 9090
+  - host: 8080
+    vm: 80
 vm_dir: ./vm/
 bridge_name: "br0"
 disksize: "200G"

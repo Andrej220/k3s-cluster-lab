@@ -128,6 +128,8 @@ clean: stopvm clean_temp_files
 	@echo "$(USER_DATA) has been deleted"
 	@rm -f $(PROJECT_NAME)_run
 	@echo "$(PROJECT_NAME)_run has been deleted"
+	@rm -f ./yq
+	@echo "yq has beed deleted"
 
 .PHONY: makeiso
 makeiso:
@@ -154,11 +156,18 @@ create_rook_disks:
 
 .PHONY: make-launcher 
 make-launcher:  
-	$(file >$(PROJECT_NAME)_run, $(launcher)) 
+	@$(file >$(PROJECT_NAME)_run, $(launcher)) 
 	@chmod +x $(PROJECT_NAME)_run
+	@echo "$(PROJECT_NAME)_run has ben created"
+
+.PHONY: install_yq
+install_yq:
+	@wget https://github.com/mikefarah/yq/releases/download/v4.30.6/yq_linux_amd64 -O ./yq
+	@chmod +x ./yq
+
 
 .PHONY: prepare-vm
-prepare-vm: check-tools prepare-dirs download-cloud-image makeiso snapshot create_rook_disks make-launcher 
+prepare-vm: check-tools install_yq prepare-dirs download-cloud-image makeiso snapshot create_rook_disks make-launcher 
 
 .PHONY: help
 help:
