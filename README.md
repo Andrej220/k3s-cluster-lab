@@ -1,71 +1,76 @@
-# Kubernetes Cluster Setup with Rook-Ceph, Grafana, and Prometheus
 
-This project automates the deployment of a lightweight Kubernetes cluster (k3s) within a virtual machine (VM). The cluster is pre-configured with:
+# VM Preparation and Management with Makefile
 
-- **Rook-Ceph**: A storage orchestrator for managing Ceph clusters within Kubernetes.
-- **Grafana**: An open-source platform for monitoring and observability.
-- **Prometheus**: A systems monitoring and alerting toolkit.
-
-By using this project, you can quickly set up a fully functional Kubernetes environment suitable for testing, development, or learning purposes.
-
-## Table of Contents
-
-- [Introduction](#introduction)
-- [Prerequisites](#prerequisites)
-- [Configuration](#configuration)
-  - [Configuration Parameters](#configuration-parameters)
-- [Usage](#usage)
-  - [Available Makefile Targets](#available-makefile-targets)
-  - [Steps to Prepare and Run the VM](#steps-to-prepare-and-run-the-vm)
-    - [1. Prepare the VM Environment](#1-prepare-the-vm-environment)
-    - [2. Launch the VM](#2-launch-the-vm)
-    - [3. Access the Kubernetes Cluster](#3-access-the-kubernetes-cluster)
-  - [Customizing cloud-init Configuration](#customizing-cloud-init-configuration)
-  - [Cleaning Up](#cleaning-up)
-- [Notes](#notes)
-- [License](#license)
-
-## Introduction
-
-This project leverages `make` and QEMU to automate the setup of a VM running a k3s Kubernetes cluster. The cluster is configured with:
-
-- **Rook-Ceph** for storage orchestration and management.
-- **Grafana** and **Prometheus** for monitoring the cluster and workloads.
-
-The automation includes:
-
-- Downloading and configuring an Ubuntu cloud image.
-- Setting up cloud-init for VM customization.
-- Installing and configuring k3s, Rook-Ceph, Grafana, and Prometheus.
-- Preparing additional disk images for Rook-Ceph storage pools.
-- Generating scripts to manage the VM lifecycle.
+This project leverages a Makefile to manage the lifecycle of a virtual machine (VM) with various utilities, such as
+cloud-init and Rook-Ceph disk management, to streamline setup, configuration, and cleanup tasks.
 
 ## Prerequisites
-
-Ensure you have the following installed:
-
-- **Make**: To run the `Makefile` commands.
-- **QEMU**: For creating and managing virtual machine images (`qemu-img`, `qemu-system`).
-- **curl**: To download the Ubuntu cloud image.
-- **xorriso**: To create ISO images for cloud-init.
-- **bash**: For executing shell scripts.
-- **Ansible**: For provisioning the VM with k3s, Rook-Ceph, Grafana, and Prometheus.
-- **An internet connection**: Required to download the Ubuntu cloud image and software packages.
-
-Ensure you have permissions to create and modify files in the project directory.
+Ensure you have the following tools installed:
+- `curl`
+- `qemu-img`
+- `xorriso`
+- `awk`
+- `yq`
 
 ## Configuration
 
-The project uses a `config.yml` file for configuration parameters. This file should be placed in the root directory of the project.
+Configuration options are available in a YAML file (`config.yml`) located in the root directory. Customize this file with the necessary variables to tailor the VM setup to your specifications.
+
+### Key Configuration Options in `config.yml`
+
+- **project_name**: The name for your project, which also determines the name of the generated executable script (`<project_name>_run`). Run this script to start and manage the VM after setup.
+- **hostport**: The port on your local machine (host) that maps to the VM’s internal SSH port (typically `22`). Default is `8022`.
+- **vmport**: The port inside the VM, usually `22`, for SSH access.
+- **cpus**: The number of CPUs allocated to the VM. Default is `2`.
+- **ram**: The amount of RAM allocated to the VM, default is `4G`.
+- **disksize**: The size of each disk created for Rook-Ceph, default is `200G`.
 
 Example `config.yml`:
-
 ```yaml
-project_name: "k3s-cluster"
-vm_dir: "./vm/"
-hostport: "8022"
-vmport: "22"
-cpus: "2"
-ram: "4096"
-disksize: "50G"
+project_name: "k3s_cluster"
+hostport: 8022
+vmport: 22
+cpus: 4
+ram: 8G
+disksize: 100G
 ```
+
+## Makefile Variables
+
+- `UBUNTU_VERSION`: Sets the Ubuntu version to download, default is `jammy`.
+- `CONFIG_FILE`: Path to the configuration YAML file.
+- `VM_DIR`: Directory to store VM files, default is `./vm/`.
+
+## Usage
+### Commands
+Run the following commands to set up and manage your VM.
+
+- `make prepare-vm` - Set up the VM environment, downloading images, creating disks, and generating the cloud-init ISO.
+- `make download-cloud-image` - Download the specified Ubuntu cloud image.
+- `make snapshot` - Create a snapshot of the current VM state for later restoration.
+- `make revert` - Revert the VM to its original state by restoring from a snapshot.
+- `make clean` - Clean up all generated files, VM disks, and cloud-init ISO.
+- `make makeiso` - Generate a cloud-init ISO for VM configuration.
+- `make create_rook_disks` - Create disk images specifically for Rook-Ceph storage.
+
+### Running the VM
+
+After running `make prepare-vm`, an executable script is generated in the project root with the name `<project_name>_run`. This script serves as the main way to manage the VM. Use it to start, stop, and check the VM's status:
+
+```bash
+./<project_name>_run start   # Start the VM
+./<project_name>_run stop    # Stop the VM
+./<project_name>_run status  # Check the VM status
+```
+
+### Help
+- Run `make help` to view a list of all available targets with descriptions.
+
+## Project Structure
+
+- **Makefile**: Contains all commands and targets for VM management.
+- **config.yml**: YAML configuration file for custom settings.
+- **cloud-init/**: Directory containing cloud-init configuration files like `user-data` and `meta-data`.
+- **vm/**: Default directory where VM images and snapshots will be stored.
+
+---
