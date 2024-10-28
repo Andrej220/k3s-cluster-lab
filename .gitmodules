@@ -1,6 +1,3 @@
 [submodule "vm-runner"]
 	path = vm-runner
 	url = git@github.com:Andrej220/vm-runner.git
-[submodule "utils"]
-	path = utils
-	url = git@github.com:Andrej220/bash_utils.git
