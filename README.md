@@ -19,8 +19,6 @@ Configuration options are available in a YAML file (`config.yml`) located in the
 ### Key Configuration Options in `config.yml`
 
 - **project_name**: The name for your project, which also determines the name of the generated executable script (`<project_name>_run`). Run this script to start and manage the VM after setup.
-- **hostport**: The port on your local machine (host) that maps to the VM’s internal SSH port (typically `22`). Default is `8022`.
-- **vmport**: The port inside the VM, usually `22`, for SSH access.
 - **cpus**: The number of CPUs allocated to the VM. Default is `2`.
 - **ram**: The amount of RAM allocated to the VM, default is `4G`.
 - **disksize**: The size of each disk created for Rook-Ceph, default is `200G`.
@@ -28,8 +26,6 @@ Configuration options are available in a YAML file (`config.yml`) located in the
 Example `config.yml`:
 ```yaml
 project_name: "k3s_cluster"
-hostport: 8022
-vmport: 22
 cpus: 4
 ram: 8G
 disksize: 100G
@@ -62,6 +58,10 @@ After running `make prepare-vm`, an executable script is generated in the projec
 ./<project_name>_run stop    # Stop the VM
 ./<project_name>_run status  # Check the VM status
 ```
+
+### Default Setup
+
+By default, this project sets up a **K3s cluster** with **Rook-Ceph** for storage, along with **Prometheus** and **Grafana** for monitoring. These services provide a lightweight Kubernetes environment, persistent storage, and monitoring capabilities out of the box.
 
 ### Help
 - Run `make help` to view a list of all available targets with descriptions.

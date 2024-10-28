@@ -35,8 +35,9 @@ DIRECTORIES := $(VM_DIR) $(CLOUD_INIT_DIR)
 IMAGE_URL_BASE = https://cloud-images.ubuntu.com/$(UBUNTU_VERSION)/current
 IMAGE_NAME := $(UBUNTU_VERSION)-server-cloudimg-amd64.img
 
-HOSTPORT = $(if $(strip $(hostport)),$(hostport),8022)
-VMPORT = $(if $(strip $(vmport)),$(vmport),22)
+#HOSTPORT = $(if $(strip $(hostport)),$(hostport),8022)
+#VMPORT = $(if $(strip $(vmport)),$(vmport),22)
+
 CPUS = $(if $(strip $(cpus)),$(cpus),2)
 RAM = $(if $(strip $(ram)),$(ram),4G)
 DISK_SIZE = $(if $(strip $(disksize)),$(disksize),200G)
@@ -55,7 +56,7 @@ disk4_SIZE = $(DISK_SIZE)
 
 define launcher =
 #!/bin/bash 
-PROJECT_NAME=$(PROJECT_NAME) RAM=$(RAM) CPUS=$(CPUS) HOSTPORT=$(HOSTPORT) VMPORT=$(VMPORT) VM_DIR=$(VM_DIR) $(VMRUN_SCRIPT) -c ./config.yml $$1
+PROJECT_NAME=$(PROJECT_NAME) RAM=$(RAM) CPUS=$(CPUS) VM_DIR=$(VM_DIR) $(VMRUN_SCRIPT) -c ./config.yml $$1
 endef
 
 .PHONY: check-tools
