@@ -3,61 +3,62 @@
 .PHONY: default
 default: prepare-vm
 
+
+TARGETS := snapshot stopvm clean_temp_files clean makeiso make-launcher prepare-vm
+$(foreach target,$(TARGETS),$(eval $(target): read_config))
+
 UBUNTU_VERSION ?= jammy
-YAML_PARSER := ./utils/parse_yaml.sh
+IMAGE_URL_BASE = https://cloud-images.ubuntu.com/$(UBUNTU_VERSION)/current
+IMAGE_NAME := $(UBUNTU_VERSION)-server-cloudimg-amd64.img
+YAML_PARSER := ./yq
 CONFIG_FILE := ./config.yml
 VMRUN_SCRIPT :=./vm-runner/vmrun
 CLOUD_INIT_DIR := ./cloud-init/
-TEMP_FILE := /tmp/make_vars.mk
 AWK := awk
 CURL := curl -L -o
 QEMU_IMG := qemu-img
-
-
-#This parses yml config file and includes variables 
-include $(shell bash -c 'source $(YAML_PARSER); parse_yaml $(CONFIG_FILE) > $(TEMP_FILE); echo $(TEMP_FILE)')
-
-PROJECT_NAME = $(if $(strip $(project_name)),$(strip $(subst ",,$(project_name))),k3)
-PROJECT_DIR := $(CURDIR)
-VM_DIR := $(if $(strip $(vm_dir)),$(strip $(subst ",,$(vm_dir))),./vm/)
-BASE_IMAGE := $(VM_DIR)$(PROJECT_NAME).qcow2
-SNAPSHOT_IMAGE := $(VM_DIR)$(PROJECT_NAME)_snapshot.qcow2
-SNAPSHOT_IMAGE_NAME := $(PROJECT_NAME)_snapshot.qcow2
-CLOUD_INIT_ISO := $(CLOUD_INIT_DIR)cloud-init.iso
-USER_DATA := $(CLOUD_INIT_DIR)user-data
-USER_DATA_YAML := $(CLOUD_INIT_DIR)user-data.yaml
-USER_DATA_MERGET := $(CLOUD_INIT_DIR)user-data-merged.yaml
-GRAFANA_CONTENT := \#GRAFANA_CONTENT
-GRAFANA_YAML := $(CLOUD_INIT_DIR)grafana.yaml
-
-DIRECTORIES := $(VM_DIR) $(CLOUD_INIT_DIR) 
-
-IMAGE_URL_BASE = https://cloud-images.ubuntu.com/$(UBUNTU_VERSION)/current
-IMAGE_NAME := $(UBUNTU_VERSION)-server-cloudimg-amd64.img
-
-#HOSTPORT = $(if $(strip $(hostport)),$(hostport),8022)
-#VMPORT = $(if $(strip $(vmport)),$(vmport),22)
-
-CPUS = $(if $(strip $(cpus)),$(cpus),2)
-RAM = $(if $(strip $(ram)),$(ram),4G)
-DISK_SIZE = $(if $(strip $(disksize)),$(disksize),200G)
-
 IMG_FORMAT = qcow2
-IMAGES = \
-    $(VM_DIR)disk1.qcow2 \
-    $(VM_DIR)disk2.qcow2 \
-    $(VM_DIR)disk3.qcow2 \
-	$(VM_DIR)disk4.qcow2
-
-disk1_SIZE = $(DISK_SIZE)
-disk2_SIZE = $(DISK_SIZE)
-disk3_SIZE = $(DISK_SIZE)
-disk4_SIZE = $(DISK_SIZE)
-
-define launcher =
+# TO BE REPLACED Grafana.yaml
+GRAFANA_CONTENT := \#GRAFANA_CONTENT
+define LAUNCHER
 #!/bin/bash 
-PROJECT_NAME=$(PROJECT_NAME) RAM=$(RAM) CPUS=$(CPUS) VM_DIR=$(VM_DIR) $(VMRUN_SCRIPT) -c ./config.yml $$1
+$(VMRUN_SCRIPT) -c ./config.yml $$1 
 endef
+
+check_yq:
+	@if [ ! -x "./yq" ]; then \
+		echo "yq not found, installing..."; \
+		$(MAKE) install_yq; \
+	fi
+
+.PHONY: read_config
+read_config: check_yq
+	@echo "Reading configuration from $(CONFIG_FILE)"
+	$(eval PROJECT_NAME := $(shell ./yq -e ".project_name" config.yml || echo "k3"))
+	$(eval VM_DIR := $(shell ./yq -e ".vm_dir" config.yml || echo "./vm/"))
+
+	$(eval PROJECT_DIR := $(CURDIR))
+	$(eval BASE_IMAGE := $(VM_DIR)/$(PROJECT_NAME).qcow2)
+	$(eval SNAPSHOT_IMAGE := $(VM_DIR)$(PROJECT_NAME)_snapshot.qcow2)
+	$(eval SNAPSHOT_IMAGE_NAME := $(PROJECT_NAME)_snapshot.qcow2)
+	$(eval CLOUD_INIT_ISO := $(CLOUD_INIT_DIR)cloud-init.iso )
+	$(eval USER_DATA := $(CLOUD_INIT_DIR)user-data )
+	$(eval USER_DATA_YAML := $(CLOUD_INIT_DIR)user-data.yaml )
+	$(eval USER_DATA_MERGED := $(CLOUD_INIT_DIR)user-data-merged.yaml)
+	$(eval GRAFANA_YAML := $(CLOUD_INIT_DIR)grafana.yaml)
+	$(eval CPUS := $(shell ./yq -e ".cpus" config.yml || echo "2"))
+	$(eval RAM := $(shell ./yq -e ".ram" config.yml || echo "4G"))
+	$(eval DISK_SIZE := $(shell ./yq -e ".disksize" config.yml || echo "200G"))
+	$(eval IMAGES := \
+    	$(VM_DIR)disk1.qcow2 \
+    	$(VM_DIR)disk2.qcow2 \
+    	$(VM_DIR)disk3.qcow2 \
+		$(VM_DIR)disk4.qcow2 )
+	#$(eval disk1_SIZE := $(DISK_SIZE))
+	#$(eval disk2_SIZE := $(DISK_SIZE))
+	#$(eval disk3_SIZE := $(DISK_SIZE))
+	#$(eval disk4_SIZE := $(DISK_SIZE))
+	$(eval DIRECTORIES := $(VM_DIR) $(CLOUD_INIT_DIR) )
 
 .PHONY: check-tools
 check-tools:
@@ -68,7 +69,7 @@ check-tools:
 
 
 .PHONY: prepare-dirs 
-prepare-dirs:
+prepare-dirs: read_config
 	@echo "Checking and creating necessary directories..."
 	@mkdir -p $(DIRECTORIES)
 
@@ -113,10 +114,10 @@ clean_rook_disks:
 
 .PHONY: clean_temp_files
 clean_temp_files:
-	@echo "Deleting $(USER_DATA_MERGET)"
-	@rm -f $(USER_DATA_MERGET)
-	@echo "Deleting $(TEMP_FILE)"
-	@rm -f $(TEMP_FILE)
+	@echo "Deleting $(USER_DATA_MERGED)"
+	@rm -f $(USER_DATA_MERGED)
+	#@echo "Deleting $(TEMP_FILE)"
+	#@rm -f $(TEMP_FILE)
 
 .PHONY: clean
 clean: stopvm clean_temp_files
@@ -137,12 +138,12 @@ makeiso:
 	@echo "Making cloud-init iso"
 	@if [  -f "$(GRAFANA_YAML)" ]; then \
 		echo "$(GRAFANA_YAML) was found, replacing $(GRAFANA_CONTENT) with content  $(GRAFANA_YAML) and creating $(USER_DATA)"; \
-		$(AWK) '/$(GRAFANA_CONTENT)/ { system("cat $(GRAFANA_YAML)"); next } { print }' $(USER_DATA_YAML) > $(USER_DATA_MERGET); \
+		$(AWK) '/$(GRAFANA_CONTENT)/ { system("cat $(GRAFANA_YAML)"); next } { print }' $(USER_DATA_YAML) > $(USER_DATA_MERGED); \
 	else \
 		echo "$(GRAFANA_YAML) was not found. Copy $(USER_DATA_YAML) to $(USER_DATA)"; \
-		cp $(USER_DATA_YAML) $(USER_DATA_MERGET); \
+		cp $(USER_DATA_YAML) $(USER_DATA_MERGED); \
 	fi 
-	@mv $(USER_DATA_MERGET) $(USER_DATA) || { echo "Failed to move merged user data"; exit 1; }
+	@mv $(USER_DATA_MERGED) $(USER_DATA) || { echo "Failed to move merged user data"; exit 1; }
 	@xorriso -as mkisofs -output $(CLOUD_INIT_ISO) -volid cidata -joliet -rock $(CLOUD_INIT_DIR)user-data $(CLOUD_INIT_DIR)meta-data  || { echo "Failed to make iso file"; exit 1; }
 	@echo "$(CLOUD_INIT_ISO) has been created"
 
@@ -150,14 +151,14 @@ makeiso:
 create_rook_disks: 
 	@if ls $(IMAGES) >/dev/null 2>&1; then $(MAKE) clean_rook_disks; fi
 	@echo "Creating disk images for Rook-Ceph"
-	$(MAKE) -j4 $(IMAGES)
+	$(MAKE) -j4 $(IMAGES) DISK_SIZE=$(DISK_SIZE)
 
 %.qcow2: 
-	@$(QEMU_IMG) create -f $(IMG_FORMAT) $@ $($(*F)_SIZE)
+	$(QEMU_IMG) create -f $(IMG_FORMAT) $@ $(DISK_SIZE)
 
 .PHONY: make-launcher 
 make-launcher:  
-	@$(file >$(PROJECT_NAME)_run, $(launcher)) 
+	@$(file >$(PROJECT_NAME)_run, $(LAUNCHER)) 
 	@chmod +x $(PROJECT_NAME)_run
 	@echo "$(PROJECT_NAME)_run has ben created"
 
@@ -168,7 +169,7 @@ install_yq:
 
 
 .PHONY: prepare-vm
-prepare-vm: check-tools install_yq prepare-dirs download-cloud-image makeiso snapshot create_rook_disks make-launcher 
+prepare-vm: check-tools prepare-dirs download-cloud-image makeiso snapshot create_rook_disks make-launcher 
 
 .PHONY: help
 help:
