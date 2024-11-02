@@ -105,7 +105,7 @@ stopvm:
 
 .PHONY: revert
 revert: stopvm clean_rook_disks clean_temp_files snapshot makeiso create_rook_disks make-launcher
-	#@echo "Reverting to original image..."
+	@#echo "Reverting to original image..."
 
 .PHONY: clean_rook_disks
 clean_rook_disks:
