@@ -1,0 +1,5 @@
+cloud-init/cloud-init.iso
+cloud-init/user-data
+yq
+*_run
+vm
