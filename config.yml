@@ -7,7 +7,11 @@ hostports:
   - host: 9090
     vm: 9090
   - host: 8080
-    vm: 80
+    vm: 30080
+  - host: 3000
+    vm: 3000
+  - host: 6443
+    vm: 6443
 vm_dir: ./vm/
 bridge_name: "br0"
 disksize: "200G"
