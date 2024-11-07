@@ -108,4 +108,9 @@ runcmd:
   - 'sudo -i -u user kubectl create namespace grafana'
   - 'sudo -i -u user kubectl apply -f /home/user/grafana.yaml --namespace=grafana'
 
+  # Installing Swagger/petstore
+  - 'sudo mount /dev/cdrom /mnt'
+  #- 'sudo -i -u user helm install petstore /mnt/files/petstore -n petstore --create-namespace'
+  - ' sudo -i -u user helm upgrade --install swagger-petstore oci://ghcr.io/securecodebox/helm/swagger-petstore --namespace petstore --create-namespace'
+
 final_message: "Cloud-init finished."
