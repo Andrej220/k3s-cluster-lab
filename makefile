@@ -14,6 +14,7 @@ YAML_PARSER := ./yq
 CONFIG_FILE := ./config.yml
 VMRUN_SCRIPT :=./vm-runner/vmrun
 CLOUD_INIT_DIR := ./cloud-init/
+FILES_DIR := ./files
 AWK := awk
 CURL := curl -L -o
 QEMU_IMG := qemu-img
@@ -136,6 +137,14 @@ clean: stopvm clean_temp_files
 .PHONY: makeiso
 makeiso:
 	@echo "Making cloud-init iso"
+	@if [ -f $(CLOUD_INIT_ISO) ]; then \
+		echo "Deleting $(CLOUD_INIT_ISO)"; \
+		rm $(CLOUD_INIT_ISO); \
+	fi
+	@ if [ -d $(FILES_DIR) ]; then \
+		echo "Deleting installations files"; \
+		rm -rf $(CLOUD_INIT_DIR)$(FILES_DIR); \
+	fi
 	@if [  -f "$(GRAFANA_YAML)" ]; then \
 		echo "$(GRAFANA_YAML) was found, replacing $(GRAFANA_CONTENT) with content  $(GRAFANA_YAML) and creating $(USER_DATA)"; \
 		$(AWK) '/$(GRAFANA_CONTENT)/ { system("cat $(GRAFANA_YAML)"); next } { print }' $(USER_DATA_YAML) > $(USER_DATA_MERGED); \
@@ -144,7 +153,9 @@ makeiso:
 		cp $(USER_DATA_YAML) $(USER_DATA_MERGED); \
 	fi 
 	@mv $(USER_DATA_MERGED) $(USER_DATA) || { echo "Failed to move merged user data"; exit 1; }
-	@xorriso -as mkisofs -output $(CLOUD_INIT_ISO) -volid cidata -joliet -rock $(CLOUD_INIT_DIR)user-data $(CLOUD_INIT_DIR)meta-data  || { echo "Failed to make iso file"; exit 1; }
+	@cp -r "$(FILES_DIR)"  "$(CLOUD_INIT_DIR)"
+	@#xorriso -as mkisofs -output $(CLOUD_INIT_ISO) -volid cidata -joliet -rock $(CLOUD_INIT_DIR)user-data $(CLOUD_INIT_DIR)meta-data  || { echo "Failed to make iso file"; exit 1; }
+	@xorriso -as mkisofs -output $(CLOUD_INIT_ISO) -volid cidata -joliet -rock $(CLOUD_INIT_DIR)  || { echo "Failed to make iso file"; exit 1; }
 	@echo "$(CLOUD_INIT_ISO) has been created"
 
 .PHONY: create_rook_disks
