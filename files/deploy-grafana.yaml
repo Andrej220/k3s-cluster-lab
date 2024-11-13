@@ -1,0 +1,8 @@
+---
+- name: Deploy Grafana
+  hosts: localhost
+  tasks:
+    - name: Apply Grafana manifest
+      kubernetes.core.k8s:
+        state: present
+        definition: "{{ lookup('file', './grafana.yaml') }}"

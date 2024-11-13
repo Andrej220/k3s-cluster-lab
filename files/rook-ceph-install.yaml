@@ -1,0 +1,95 @@
+- name: Install Rook-Ceph
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Wait until K3s is ready
+      command: kubectl get nodes
+      register: k3s_ready
+      until: k3s_ready is succeeded
+      retries: 10
+      delay: 5
+
+    - name: Clone Rook repository
+      ansible.builtin.git:
+        repo: 'https://github.com/rook/rook.git'
+        dest: /home/user/rook
+        version: master
+      become_user: user
+
+    - name: Modify Rook-Ceph cluster replica count to 1
+      ansible.builtin.lineinfile:
+        path: /home/user/rook/deploy/examples/cluster.yaml
+        regexp: '^\s*count:\s*3'
+        line: '    count: 1'
+      become_user: user
+
+    - name: Apply Rook-Ceph Custom Resource Definitions
+      ansible.builtin.command:
+        cmd: kubectl apply -f /home/user/rook/deploy/examples/crds.yaml
+      become_user: user
+
+    - name: Apply Rook-Ceph common resources
+      ansible.builtin.command:
+        cmd: kubectl apply -f /home/user/rook/deploy/examples/common.yaml
+      become_user: user
+
+    - name: Apply Rook-Ceph operator
+      ansible.builtin.command:
+        cmd: kubectl apply -f /home/user/rook/deploy/examples/operator.yaml
+      become_user: user
+
+    - name: Wait for Rook-Ceph operator to be ready
+      ansible.builtin.command:
+        cmd: kubectl -n rook-ceph rollout status deploy/rook-ceph-operator
+      register: operator_status
+      until: operator_status.rc == 0
+      retries: 50
+      delay: 10
+      become_user: user
+
+    - name: Apply Rook-Ceph cluster configuration
+      ansible.builtin.command:
+        cmd: kubectl apply -f /home/user/rook/deploy/examples/cluster.yaml
+      become_user: user
+
+    - name: Wait for CephCluster to be ready
+      ansible.builtin.command:
+        cmd: kubectl -n rook-ceph get cephcluster rook-ceph -o jsonpath='{.status.phase}'
+      register: ceph_cluster_status
+      until: ceph_cluster_status.stdout == "Ready"
+      retries: 50
+      delay: 10
+      become_user: user
+
+    - name: Apply Rook-Ceph toolbox
+      ansible.builtin.command:
+        cmd: kubectl apply -f /home/user/rook/deploy/examples/toolbox.yaml
+      become_user: user
+
+    - name: Wait for the toolbox to be ready
+      ansible.builtin.command:
+        cmd: kubectl -n rook-ceph rollout status deploy/rook-ceph-tools
+      register: toolbox_status
+      until: toolbox_status.rc == 0
+      retries: 30
+      delay: 10
+      become_user: user
+
+    - name: Wait until the .mgr pool exists
+      ansible.builtin.command:
+        cmd: kubectl -n rook-ceph exec deploy/rook-ceph-tools -- ceph osd pool ls
+      register: mgr_pool
+      until: '".mgr" in mgr_pool.stdout | trim'
+      retries: 50
+      delay: 10
+      become_user: user
+
+    - name: Create replication rule for single node setup
+      ansible.builtin.command:
+        cmd: kubectl -n rook-ceph exec deploy/rook-ceph-tools -- ceph osd crush rule create-replicated replicated_rule_osd default osd
+      become_user: user
+
+    - name: Set .mgr pool crush rule
+      ansible.builtin.command:
+        cmd: kubectl -n rook-ceph exec deploy/rook-ceph-tools -- ceph osd pool set .mgr crush_rule replicated_rule_osd
+      become_user: user

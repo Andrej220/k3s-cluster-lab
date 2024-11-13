@@ -1,0 +1,54 @@
+- name: Kubernetes Cluster Setup
+  hosts: localhost
+  tasks:
+    - name: Install K3s
+      shell: curl -sfL https://get.k3s.io | sh -
+      args:
+        creates: /usr/local/bin/k3s
+
+    - name: Wait for K3s to become available
+      command: kubectl get nodes
+      register: k3s_ready
+      until: k3s_ready is succeeded
+      retries: 50
+      delay: 5
+      become: yes
+
+    - name: Adjust kubeconfig permissions for non-root access
+      ansible.builtin.file:
+        path: /etc/rancher/k3s/k3s.yaml
+        mode: '0644'  # Allows read access for other users
+      become: yes
+
+    - name: Set up kubeconfig for the user
+      ansible.builtin.file:
+        path: /home/user/.kube
+        state: directory
+        owner: user
+        mode: '0755'
+
+    - name: Copy K3s kubeconfig to user directory
+      ansible.builtin.copy:
+        src: /etc/rancher/k3s/k3s.yaml
+        dest: /home/user/.kube/config
+        owner: user
+        mode: '0600'
+
+    - name: Add KUBECONFIG to user’s environment
+      ansible.builtin.lineinfile:
+        path: /home/user/.bashrc
+        line: 'export KUBECONFIG=/home/user/.kube/config'
+        create: yes
+        owner: user
+
+    - name: Add Rook Helm repo
+      command: helm repo add rook-release https://charts.rook.io/release
+
+#    - name: Install Rook-Ceph
+#      command: helm install rook-ceph rook-release/rook-ceph --namespace rook-ceph --create-namespace
+
+    #- name: Deploy kube-prometheus-stack
+    #  command: helm install prometheus-stack prometheus-community/kube-prometheus-stack --namespace monitoring --create-namespace
+#
+    #- name: Deploy Swagger Petstore
+    #  command: helm upgrade --install swagger-petstore oci://ghcr.io/securecodebox/helm/swagger-petstore --namespace petstore --create-namespace
