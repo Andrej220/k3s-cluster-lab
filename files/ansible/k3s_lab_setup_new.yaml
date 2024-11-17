@@ -1,0 +1,5 @@
+- name: Install K3S
+  hosts: localhost
+  become: yes
+  roles:
+    - k3scluster

@@ -1,2 +1,2 @@
 instance-id: iid-local01
-local-hostname: my-ubuntu-instance
+local-hostname: k3slab

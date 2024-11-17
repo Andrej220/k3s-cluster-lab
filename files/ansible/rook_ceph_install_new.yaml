@@ -1,0 +1,5 @@
+- name: Install Rook-Ceph
+  hosts: localhost
+  become: yes
+  roles:
+    - rookceph

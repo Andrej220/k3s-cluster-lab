@@ -4,3 +4,4 @@ cloud-init/files
 yq
 *_run
 vm
+temp

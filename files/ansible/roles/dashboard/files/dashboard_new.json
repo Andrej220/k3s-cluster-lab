@@ -1,0 +1,37 @@
+{
+    "uid": "my-dashboard-uid",
+    "title": "My Dashboard",
+    "tags": [],
+    "timezone": "",
+    "panels": [
+      {
+        "title": "My Prometheus Panel",
+        "type": "graph",
+        "datasource": "MyPrometheus",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total[5m])",
+            "legendFormat": "HTTP Requests Rate",
+            "refId": "A"
+          },
+          {
+            "expr": "avg(rate(node_cpu_seconds_total{mode!=\"idle\"}[5m])) * 100",
+            "legendFormat": "CPU Load (%)",
+            "refId": "B"
+          },
+          {
+            "expr": "(node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100",
+            "legendFormat": "Memory Usage (%)",
+            "refId": "C"
+          }
+        ],
+        "gridPos": {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 8
+        }
+      }
+    ]
+  }
+  

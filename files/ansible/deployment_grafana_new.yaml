@@ -1,0 +1,24 @@
+---
+- name: Deploy Grafana with dashboards
+  hosts: localhost
+  gather_facts: no
+  roles:
+    - { role: grafana, tags: grafana }
+
+- name: Wait for Grafana to be ready
+  hosts: localhost
+  tasks:
+    - name: Wait for Grafana to be up
+      uri:
+        url: "http://localhost:3000/api/health"
+        method: GET
+        status_code: 200
+      register: grafana_status
+      retries: 50
+      delay: 5
+      until: grafana_status.status == 200
+
+- name: Deploy dashboards
+  hosts: localhost
+  roles:
+    - { role: dashboard, tags: dashboard }

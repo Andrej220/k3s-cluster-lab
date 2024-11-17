@@ -1,0 +1,6 @@
+grafana_url: "http://localhost:3000" 
+grafana_user: "admin"
+grafana_password: "admin"
+prometheus_url: "http://10.0.2.15:30900"
+dashboard_file: "./roles/dashboard/files/dashboard_new.json"  
+grafana_folder: "General"

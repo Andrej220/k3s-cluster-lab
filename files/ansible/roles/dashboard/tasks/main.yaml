@@ -1,0 +1,28 @@
+- name: Grafana dashboards
+  tags: dashboard
+  block:
+    - name: Add or update a Grafana datasource
+      community.grafana.grafana_datasource:
+        grafana_url: "{{ grafana_url }}"
+        grafana_user: "{{ grafana_user }}"
+        grafana_password: "{{ grafana_password }}"
+        validate_certs: false
+        name: "MyPrometheus"
+        ds_type: "prometheus"
+        ds_url: "{{ prometheus_url }}"
+        access: "proxy"
+        is_default: true
+        state: present
+        additional_json_data:
+          httpMethod: "POST"
+
+    - name: Create or update a Grafana dashboard
+      community.grafana.grafana_dashboard:
+        grafana_url: "{{ grafana_url }}"
+        grafana_user: "{{ grafana_user }}"
+        grafana_password: "{{ grafana_password }}"
+        validate_certs: false
+        path: "{{ dashboard_file }}"
+        folder: "{{ grafana_folder }}"
+        overwrite: true
+        state: present

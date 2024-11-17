@@ -43,6 +43,29 @@ runcmd:
     echo 
     echo "Helm is installed and ready!"
     
+# update ansible and install packages
+  - 'sudo -i -u user pip install --upgrade ansible'
+  - 'sudo -i -u user ansible-galaxy collection install community.grafana'
+
+# mount cdrom with resources 
+  - 'sudo mount /dev/cdrom /mnt'
+
+# Run Ansible play book to deploy lab
+  - 'sudo -i -u user ansible-playbook /mnt/files/ansible/k3s_lab_setup_new.yaml'
+  - 'sudo -i -u user ansible-playbook /mnt/files/ansible/rook_ceph_install_new.yaml'
+  - 'sudo -i -u user ansible-playbook -i /mnt/files/ansible/inventory/hosts.ini /mnt/files/ansible/deployment_grafana_new.yaml'
+
+  # Prometheus
+  - 'sudo -i -u user bash -c "helm repo add prometheus-community https://prometheus-community.github.io/helm-charts"'
+  - 'sudo -i -u user bash -c "helm repo update"'
+  - 'sudo -i -u user helm install prometheus prometheus-community/prometheus --namespace monitoring'
+  - 'sudo -i -u user helm upgrade prometheus prometheus-community/prometheus --namespace monitoring --set server.service.type=NodePort --set server.service.nodePort=30900  --set server.service.port=9090 --set server.service.targetPort=9090'
+  - 'sudo -i -u user helm upgrade --install swagger-petstore oci://ghcr.io/securecodebox/helm/swagger-petstore --namespace petstore --create-namespace'
+  - 'sudo -i -u user kubectl get svc -n monitoring'
+  - 'sudo -i -u user kubectl get namespaces'
+
+final_message: "Cloud-init finished."
+
 ## K3S
 #  - 'sudo -i -u user bash -c "curl -sfL https://get.k3s.io | sh -"'
 #  - 'sudo chmod 644 /etc/rancher/k3s/k3s.yaml'
@@ -116,19 +139,4 @@ runcmd:
 #  #- 'sudo -i -u user helm install petstore /mnt/files/petstore -n petstore --create-namespace'
 #  - ' sudo -i -u user helm upgrade --install swagger-petstore oci://ghcr.io/securecodebox/helm/swagger-petstore --namespace petstore --create-namespace'
 
-# mount cdrom with resources 
-  - 'sudo mount /dev/cdrom /mnt'
 
-# Run Ansible play book to deploy lab
-  - 'sudo -i -u user ansible-playbook /mnt/files/k3s_lab_setup.yaml'
-  - 'sudo -i -u user ansible-playbook /mnt/files/rook-ceph-install.yaml'
-  - 'sudo -i -u user ansible-playbook /mnt/files/deploy-grafana.yaml'
-  # Prometheus
-  - 'sudo -i -u user bash -c "helm repo add prometheus-community https://prometheus-community.github.io/helm-charts"'
-  - 'sudo -i -u user bash -c "helm repo update"'
-  - 'sudo -i -u user helm install prometheus prometheus-community/prometheus --namespace monitoring'
-  - 'sudo -i -u user helm upgrade prometheus prometheus-community/prometheus --namespace monitoring --set server.service.type=NodePort --set server.service.nodePort=30900  --set server.service.port=9090 --set server.service.targetPort=9090'
-  - 'sudo -i -u user kubectl get svc -n monitoring'
-  - 'sudo -i -u user helm upgrade --install swagger-petstore oci://ghcr.io/securecodebox/helm/swagger-petstore --namespace petstore --create-namespace'
-
-final_message: "Cloud-init finished."

@@ -1,7 +1,5 @@
 - name: Install Rook-Ceph
-  hosts: localhost
-  become: yes
-  tasks:
+  block:
     - name: Wait until K3s is ready
       command: kubectl get nodes
       register: k3s_ready

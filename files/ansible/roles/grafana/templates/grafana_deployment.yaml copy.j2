@@ -3,6 +3,7 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: monitoring
+
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -15,6 +16,7 @@ spec:
   resources:
     requests:
       storage: 1Gi
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -24,6 +26,7 @@ metadata:
   name: grafana
   namespace: monitoring
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: grafana
@@ -44,35 +47,24 @@ spec:
             - containerPort: 3000
               name: http-grafana
               protocol: TCP
-          readinessProbe:
-            failureThreshold: 3
-            httpGet:
-              path: /robots.txt
-              port: 3000
-              scheme: HTTP
-            initialDelaySeconds: 10
-            periodSeconds: 30
-            successThreshold: 1
-            timeoutSeconds: 2
-          livenessProbe:
-            failureThreshold: 3
-            initialDelaySeconds: 30
-            periodSeconds: 10
-            successThreshold: 1
-            tcpSocket:
-              port: 3000
-            timeoutSeconds: 1
-          resources:
-            requests:
-              cpu: 250m
-              memory: 750Mi
           volumeMounts:
             - mountPath: /var/lib/grafana
               name: grafana-pv
+            - name: grafana-dashboards
+              mountPath: /var/lib/grafana/dashboards
+            - name: grafana-dashboard-providers
+              mountPath: /etc/grafana/provisioning/dashboards
       volumes:
         - name: grafana-pv
           persistentVolumeClaim:
             claimName: grafana-pvc
+        - name: grafana-dashboards
+          configMap:
+            name: grafana-dashboards
+        - name: grafana-dashboard-providers
+          configMap:
+            name: grafana-dashboard-providers
+
 ---
 apiVersion: v1
 kind: Service
@@ -87,4 +79,4 @@ spec:
   selector:
     app: grafana
   sessionAffinity: None
-  type: LoadBalancer
+  type: NodePort
