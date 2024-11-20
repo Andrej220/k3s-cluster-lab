@@ -1,2 +1,4 @@
 dashboard_files:
   - dashboard_new.json
+namespace:
+  - monitoring
