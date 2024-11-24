@@ -46,6 +46,10 @@ runcmd:
 # update ansible and install packages
   - 'sudo -i -u user pip install --upgrade ansible'
   - 'sudo -i -u user ansible-galaxy collection install community.grafana'
+  - 'sudo -i -u user helm repo add prometheus-community https://prometheus-community.github.io/helm-charts'
+  - 'sudo -i -u user helm repo update'
+  - 'sudo -i -u user helm repo add grafana https://grafana.github.io/helm-charts'
+  - 'sudo -i -u user helm repo update'
 
 # mount cdrom with resources 
   - 'sudo mount /dev/cdrom /mnt'
@@ -56,15 +60,29 @@ runcmd:
   - 'sudo -i -u user ansible-playbook -i /mnt/files/ansible/inventory/hosts.ini /mnt/files/ansible/deployment_grafana_new.yaml'
 
   # Prometheus
-  - 'sudo -i -u user bash -c "helm repo add prometheus-community https://prometheus-community.github.io/helm-charts"'
-  - 'sudo -i -u user bash -c "helm repo update"'
   - 'sudo -i -u user helm install prometheus prometheus-community/prometheus --namespace monitoring'
   - 'sudo -i -u user helm upgrade prometheus prometheus-community/prometheus --namespace monitoring --set server.service.type=NodePort --set server.service.nodePort=30900  --set server.service.port=9090 --set server.service.targetPort=9090'
+ 
+  # Swagger-petstore
   - 'sudo -i -u user helm upgrade --install swagger-petstore oci://ghcr.io/securecodebox/helm/swagger-petstore --namespace petstore --create-namespace'
-  - 'sudo -i -u user kubectl get svc -n monitoring'
+ 
+  # Primtail
+  #- 'sudo -i -u user helm install '
+  - 'sudo -i -u user helm install promtail grafana/promtail -n monitoring'
+  - 'sudo -i -u user kubectl apply -f /mnt/files/promtail_svc.yaml'
+  # Loki
+  - 'sudo -i -u user helm install loki grafana/loki-distributed -n monitoring'
+# http://loki-loki-distributed-query-frontend.monitoring:3100
+
+
+ 
+  # Finalisation
+  - 'sudo -i -u user kubectl get pods --all-namespaces'
   - 'sudo -i -u user kubectl get namespaces'
 
 final_message: "Cloud-init finished."
+
+# kubectl run -it -rm debug --image=busybox --restart=Never -- sh
 
 ## K3S
 #  - 'sudo -i -u user bash -c "curl -sfL https://get.k3s.io | sh -"'
