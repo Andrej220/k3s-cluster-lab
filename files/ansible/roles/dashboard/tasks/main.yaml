@@ -1,7 +1,7 @@
 - name: Grafana dashboards
   tags: dashboard
   block:
-    - name: Add or update a Grafana datasource
+    - name: Add Grafana datasource
       community.grafana.grafana_datasource:
         grafana_url: "{{ grafana_url }}"
         grafana_user: "{{ grafana_user }}"
@@ -12,6 +12,21 @@
         ds_url: "{{ prometheus_url }}"
         access: "proxy"
         is_default: true
+        state: present
+        additional_json_data:
+          httpMethod: "POST"
+
+    - name: Add Grafana Loki datasource
+      community.grafana.grafana_datasource:
+        grafana_url: "{{ grafana_url }}"
+        grafana_user: "{{ grafana_user }}"
+        grafana_password: "{{ grafana_password }}"
+        validate_certs: false
+        name: "{{ loki_datasource_name }}"
+        ds_type: "loki"
+        ds_url: "{{ loki_url }}" 
+        access: "proxy"
+        is_default: false
         state: present
         additional_json_data:
           httpMethod: "POST"
