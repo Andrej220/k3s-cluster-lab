@@ -1,7 +1,7 @@
 {
     "uid": "my-dashboard-uid",
     "title": "My Dashboard",
-    "tags": [],
+    "tags": ["Mydashboard","logs"],
     "timezone": "",
     "panels": [
       {
