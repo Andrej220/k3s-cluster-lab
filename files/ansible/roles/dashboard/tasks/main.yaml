@@ -28,3 +28,14 @@
         folder: "{{ grafana_folder }}"
         overwrite: true
         state: present
+    
+    - name: Create or update a Grafana dashboard
+      community.grafana.grafana_dashboard:
+        grafana_url: "{{ grafana_url }}"
+        grafana_user: "{{ grafana_user }}"
+        grafana_password: "{{ grafana_password }}"
+        validate_certs: false
+        path: "{{ dashboard_petstore_file }}"
+        folder: "{{ grafana_folder }}"
+        overwrite: true
+        state: present

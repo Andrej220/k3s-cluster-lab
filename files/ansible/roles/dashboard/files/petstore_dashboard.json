@@ -1,0 +1,27 @@
+{
+    "uid": "swagger-petstore-dashboard",
+    "title": "Swagger-Petstore Monitoring Dashboard",
+    "tags": ["swagger-petstore", "loki", "logs"],
+    "timezone": "",
+    "panels": [
+      {
+        "title": "Swagger Petstore Log Count",
+        "type": "timeseries",
+        "datasource": {
+          "type": "loki"
+        },
+        "targets": [
+          {
+            "expr": "count_over_time({app=\"swagger-petstore\",job=\"petstore/swagger-petstore\"}[5m])",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "x": 0,
+          "y": 0,
+          "w": 12,
+          "h": 8
+        }
+      }
+    ]
+  }
