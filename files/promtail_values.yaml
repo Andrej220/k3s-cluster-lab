@@ -1,0 +1,30 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+clients:
+  - url: http://loki-loki-distributed-query-frontend.monitoring:3100/loki/api/v1/push
+
+positions:
+  filename: /var/log/positions.yaml
+
+scrape_configs:
+  - job_name: kubernetes-pods-swagger-petstore
+    kubernetes_sd_configs:
+      - role: pod
+    pipeline_stages:
+      - docker: {}
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        action: keep
+        regex: swagger-petstore
+      - source_labels: [__meta_kubernetes_pod_name]
+        target_label: pod
+      - source_labels: [__meta_kubernetes_namespace]
+        target_label: namespace
+      - source_labels: [__meta_kubernetes_container_name]
+        target_label: container
+config:
+  clients:
+#    - url: http://loki-loki-distributed-distributor.monitoring.svc.cluster.local:3100/loki/api/v1/push
+    - url: http://loki-loki-distributed-distributor.monitoring.svc.cluster.local:3100/loki/api/v1/push
