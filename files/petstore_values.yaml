@@ -1,0 +1,10 @@
+spec:
+  template:
+    spec:
+      containers:
+        - name: swagger-petstore
+          env:
+            - name: CORS_ALLOWED_ORIGINS
+              value: "*"
+            - name: CORS_ENABLED
+              value: "true"

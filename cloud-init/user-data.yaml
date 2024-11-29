@@ -64,17 +64,19 @@ runcmd:
   - 'sudo -i -u user helm upgrade prometheus prometheus-community/prometheus --namespace monitoring --set server.service.type=NodePort --set server.service.nodePort=30900  --set server.service.port=9090 --set server.service.targetPort=9090'
  
   # Swagger-petstore
-  - 'sudo -i -u user helm upgrade --install swagger-petstore oci://ghcr.io/securecodebox/helm/swagger-petstore --namespace petstore --create-namespace'
+  - 'sudo -i -u user helm upgrade --install swagger-petstore oci://ghcr.io/securecodebox/helm/swagger-petstore --namespace petstore --create-namespace '
+  - 'sudo -i -u user kubectl -n petstore wait --for=condition=available deployment/swagger-petstore --timeout=120s'
+  - 'sudo -i -u user kubectl patch deployment swagger-petstore -n petstore --patch-file /mnt/files/petstore_values.yaml'
+  - 'sudo -i -u user kubectl rollout restart deployment swagger-petstore -n petstore'
  
   # Primtail
-  #- 'sudo -i -u user helm install '
-  - 'sudo -i -u user helm install promtail grafana/promtail -n monitoring'
+  - 'sudo -i -u user helm upgrade --install promtail grafana/promtail -n monitoring -f /mnt/files/promtail_values.yaml'
   - 'sudo -i -u user kubectl apply -f /mnt/files/promtail_svc.yaml'
+  
   # Loki
-  - 'sudo -i -u user helm install loki grafana/loki-distributed -n monitoring'
+  - 'sudo -i -u user helm upgrade --install loki grafana/loki-distributed -n monitoring -f /mnt/files/loki_values.yaml'
+
 # http://loki-loki-distributed-query-frontend.monitoring:3100
-
-
  
   # Finalisation
   - 'sudo -i -u user kubectl get pods --all-namespaces'
