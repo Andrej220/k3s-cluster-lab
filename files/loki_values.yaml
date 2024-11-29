@@ -1,0 +1,3 @@
+memberlist:
+  join_members:
+    - loki-loki-distributed-memberlist.monitoring.svc.cluster.local
