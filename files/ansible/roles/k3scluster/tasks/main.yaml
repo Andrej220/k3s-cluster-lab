@@ -14,31 +14,6 @@
       delay: 10
       ignore_errors: no
 
-    # - name: Wait for system pods to become ready
-    #   command: kubectl wait --for=condition=Ready pod -l tier=control-plane -n kube-system --timeout=300s
-    #   register: pod_readiness
-    #   until: pod_readiness.rc == 0
-    #   retries: 50
-    #   delay: 10
-    #   ignore_errors: no
-# 
-    # - name: Test Kubernetes API access
-    #   command: kubectl version --short
-    #   register: api_access
-    #   until: api_access.rc == 0
-    #   retries: 10
-    #   delay: 10
-    #   ignore_errors: no
-
-
-    # - name: Wait for K3s to become available
-    #   command: kubectl get nodes
-    #   register: k3s_ready
-    #   until: k3s_ready is succeeded
-    #   retries: 50
-    #   delay: 5
-    #   become: yes
-
     - name: Adjust kubeconfig permissions for non-root access
       ansible.builtin.file:
         path: /etc/rancher/k3s/k3s.yaml
@@ -72,11 +47,3 @@
           creates: ~/.helm/repository/cache/rook-release-index.yaml
 
 
-#    - name: Install Rook-Ceph
-#      command: helm install rook-ceph rook-release/rook-ceph --namespace rook-ceph --create-namespace
-
-    #- name: Deploy kube-prometheus-stack
-    #  command: helm install prometheus-stack prometheus-community/kube-prometheus-stack --namespace monitoring --create-namespace
-#
-    #- name: Deploy Swagger Petstore
-    #  command: helm upgrade --install swagger-petstore oci://ghcr.io/securecodebox/helm/swagger-petstore --namespace petstore --create-namespace
