@@ -75,9 +75,7 @@ runcmd:
   - 'sudo -i -u user kubectl apply -f /mnt/files/promtail_svc.yaml'
   
   # Loki
-  - 'sudo -i -u user helm upgrade --install loki grafana/loki-distributed -n monitoring -f /mnt/files/loki_values.yaml'
-
-# http://loki-loki-distributed-query-frontend.monitoring:3100
+  - 'sudo -i -u user helm upgrade --install loki grafana/loki-distributed -n monitoring -f /mnt/files/loki_values.yaml' # http://loki-loki-distributed-query-frontend.monitoring:3100
  
   # Finalisation
   - 'sudo -i -u user kubectl get pods --all-namespaces'
@@ -85,79 +83,6 @@ runcmd:
 
 final_message: "Cloud-init finished."
 
-# kubectl run -it -rm debug --image=busybox --restart=Never -- sh
 
-## K3S
-#  - 'sudo -i -u user bash -c "curl -sfL https://get.k3s.io | sh -"'
-#  - 'sudo chmod 644 /etc/rancher/k3s/k3s.yaml'
-#  - 'sudo chown user:user /etc/rancher/k3s/k3s.yaml'
-#
-#  # Set up kubeconfig for 'user'
-#  - 'sudo mkdir -p /home/user/.kube'
-#  - 'sudo cp /etc/rancher/k3s/k3s.yaml /home/user/.kube/config'
-#  - 'sudo chown user:user /home/user/.kube/config'
-#  - 'sudo chmod 600 /home/user/.kube/config'
-#    
-#  #rook-ceph
-#  - 'sudo -i -u user bash -c "export PATH=$PATH:/usr/local/bin; until kubectl get nodes; do sleep 5; done"'
-#
-#  - 'sudo -i -u user git clone --single-branch  https://github.com/rook/rook.git /home/user/rook'
-#  - 'sudo -i -u user sed -i "s/^\(\s*\)count: 3/\1count: 1/" /home/user/rook/deploy/examples/cluster.yaml'
-#
-#  - 'sudo -i -u user kubectl apply -f /home/user/rook/deploy/examples/crds.yaml'
-#  - 'sudo -i -u user kubectl apply -f /home/user/rook/deploy/examples/common.yaml'
-#  - 'sudo -i -u user kubectl apply -f /home/user/rook/deploy/examples/operator.yaml'
-#
-#  # wait for rook-ceph to finish installation
-#  - 'sudo -i -u user kubectl -n rook-ceph rollout status deploy/rook-ceph-operator'
-#  - 'sudo -i -u user kubectl apply -f /home/user/rook/deploy/examples/cluster.yaml'
-#  
-#  - |
-#    echo -n "Waiting for CephCluster to become ready..."
-#    until kubectl -n rook-ceph get cephcluster rook-ceph -o jsonpath='{.status.phase}' | grep -q "Ready"; do
-#      echo -n "."
-#      sleep 1
-#    done
-#    echo 
-#    echo "CephCluster is now ready!"
-#
-#  #- 'kubectl -n rook-ceph get cephcluster -o wide --watch'
-#
-#  - 'sudo -i -u user kubectl apply -f /home/user/rook/deploy/examples/toolbox.yaml'
-#
-#  # Wait for the toolbox pod to be ready
-#  - 'sudo -i -u user kubectl -n rook-ceph rollout status deploy/rook-ceph-tools'
-#
-#  # Wait until the .mgr pool exists
-#  - |
-#    echo -n "Waiting for .mgr pool to be created..."
-#    until sudo -i -u user kubectl -n rook-ceph exec deploy/rook-ceph-tools -- ceph osd pool ls | grep -q '^\.mgr$'; do
-#      echo -n "."
-#      sleep 1
-#    done
-#
-#  # Change replication rules, to make it work as a single node
-#  - 'sudo -i -u user kubectl -n rook-ceph exec deploy/rook-ceph-tools -- ceph osd crush rule create-replicated replicated_rule_osd default osd'
-#  - 'sudo -i -u user kubectl -n rook-ceph exec deploy/rook-ceph-tools -- ceph osd pool set .mgr crush_rule replicated_rule_osd'
-#
-#  # Prometheus
-#  - 'sudo -i -u user git clone https://github.com/prometheus-operator/kube-prometheus.git'
-#  - 'sudo -i -u user kubectl apply --server-side -f kube-prometheus/manifests/setup'
-#  - |
-#      echo -n "Waiting for CRDs to be created..."
-#      while ! kubectl get crd alertmanagers.monitoring.coreos.com prometheuses.monitoring.coreos.com servicemonitors.monitoring.coreos.com > /dev/null 2>&1; do
-#        echo -n "."
-#        sleep 1
-#      done
-#      echo
-#  - 'sudo -i -u user kubectl apply -f kube-prometheus/manifests/'
-#
-#  # Graphana
-#  - 'sudo -i -u user kubectl create namespace grafana'
-#  - 'sudo -i -u user kubectl apply -f /mnt/files/grafana.yaml --namespace=grafana'
-#
-#  # Installing Swagger/petstore
-#  #- 'sudo -i -u user helm install petstore /mnt/files/petstore -n petstore --create-namespace'
-#  - ' sudo -i -u user helm upgrade --install swagger-petstore oci://ghcr.io/securecodebox/helm/swagger-petstore --namespace petstore --create-namespace'
 
 
