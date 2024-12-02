@@ -1,76 +1,80 @@
 
-# VM Preparation and Management with Makefile
+# K3s Cluster Lab
 
-This project leverages a Makefile to manage the lifecycle of a virtual machine (VM) with various utilities, such as
-cloud-init and Rook-Ceph disk management, to streamline setup, configuration, and cleanup tasks.
+A project for automating the deployment of a Kubernetes (K3s) cluster, complete with integrated storage (Rook-Ceph) and monitoring (Prometheus & Grafana) for a hands-on DevOps learning environment.
+
+## Table of Contents
+- [About the Project](#about-the-project)
+- [Features](#features)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Configuration](#configuration)
+- [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
+
+## About the Project
+K3s Cluster Lab is designed to help DevOps engineers and learners deploy a fully-functional Kubernetes cluster using K3s. This project simplifies deploying a local development environment with automated setup scripts, enabling integrated monitoring (Grafana, Prometheus) and storage (Rook-Ceph).
+
+## Features
+- Automated setup of a K3s cluster.
+- Integrated storage solution using Rook-Ceph.
+- Monitoring with Prometheus and Grafana.
+- Lightweight and easily customizable for different environments.
 
 ## Prerequisites
-Ensure you have the following tools installed:
+- Linux-based OS
 - `curl`
 - `qemu-img`
 - `xorriso`
 - `awk`
 - `yq`
+- Basic familiarity with command-line tools.
 
-## Configuration
-
-Configuration options are available in a YAML file (`config.yml`) located in the root directory. Customize this file with the necessary variables to tailor the VM setup to your specifications.
-
-### Key Configuration Options in `config.yml`
-
-- **project_name**: The name for your project, which also determines the name of the generated executable script (`<project_name>_run`). Run this script to start and manage the VM after setup.
-- **cpus**: The number of CPUs allocated to the VM. Default is `2`.
-- **ram**: The amount of RAM allocated to the VM, default is `4G`.
-- **disksize**: The size of each disk created for Rook-Ceph, default is `200G`.
-
-Example `config.yml`:
-```yaml
-project_name: "k3s_cluster"
-cpus: 4
-ram: 8G
-disksize: 100G
-```
-
-## Makefile Variables
-
-- `UBUNTU_VERSION`: Sets the Ubuntu version to download, default is `jammy`.
-- `CONFIG_FILE`: Path to the configuration YAML file.
-- `VM_DIR`: Directory to store VM files, default is `./vm/`.
+## Installation
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/Andrej220/k3s-cluster-lab.git
+   cd k3s-cluster-lab
+   ```
+2. **Edit Configuration**:
+   Edit the `config.yml` to customize your VM settings (e.g., CPUs, memory, disk size).
+3. **Run Setup**:
+   ```bash
+   make setup
+   ```
 
 ## Usage
-### Commands
-Run the following commands to set up and manage your VM.
+- To start the VM:
+  ```bash
+  ./<project_name>_run
+  ```
+- Access the K3s cluster with `kubectl` commands:
+  ```bash
+  export KUBECONFIG=./k3s-cluster/config
+  kubectl get nodes
+  ```
 
-- `make prepare-vm` - Set up the VM environment, downloading images, creating disks, and generating the cloud-init ISO.
-- `make download-cloud-image` - Download the specified Ubuntu cloud image.
-- `make snapshot` - Create a snapshot of the current VM state for later restoration.
-- `make revert` - Revert the VM to its original state by restoring from a snapshot.
-- `make clean` - Clean up all generated files, VM disks, and cloud-init ISO.
-- `make makeiso` - Generate a cloud-init ISO for VM configuration.
-- `make create_rook_disks` - Create disk images specifically for Rook-Ceph storage.
+## Configuration
+- **project_name**: Sets the project name. It affects the generated VM names and script filenames.
+- **cpus**: Number of CPUs allocated to the VM.
+- **memory**: Amount of RAM for the VM.
+- **disk_size**: Size of the VM's disk.
+- **network**: Network configuration settings.
 
-### Running the VM
+## Troubleshooting
+- **Problem**: Unable to connect to Grafana.
+  **Solution**: Ensure port forwarding is set up correctly using `kubectl port-forward`.
+- **Problem**: Rook-Ceph isn't creating pools.
+  **Solution**: Verify that the correct storage class is set up and the cluster has sufficient resources.
 
-After running `make prepare-vm`, an executable script is generated in the project root with the name `<project_name>_run`. This script serves as the main way to manage the VM. Use it to start, stop, and check the VM's status:
+## Contributing
+Contributions are welcome! Please fork the repository, create a new branch, and open a pull request.
 
-```bash
-./<project_name>_run start   # Start the VM
-./<project_name>_run stop    # Stop the VM
-./<project_name>_run status  # Check the VM status
-```
+## License
+Distributed under the MIT License. See `LICENSE` for more information.
 
-### Default Setup
-
-By default, this project sets up a **K3s cluster** with **Rook-Ceph** for storage, along with **Prometheus** and **Grafana** for monitoring. These services provide a lightweight Kubernetes environment, persistent storage, and monitoring capabilities out of the box.
-
-### Help
-- Run `make help` to view a list of all available targets with descriptions.
-
-## Project Structure
-
-- **Makefile**: Contains all commands and targets for VM management.
-- **config.yml**: YAML configuration file for custom settings.
-- **cloud-init/**: Directory containing cloud-init configuration files like `user-data` and `meta-data`.
-- **vm/**: Default directory where VM images and snapshots will be stored.
-
----
+## Contact
+Andrey Zargarov - [LinkedIn](https://linkedin.com/in/andreyyourprofile) - email@example.com
