@@ -1,5 +1,6 @@
 cloud-init/cloud-init.iso
 cloud-init/user-data
+cloud-init/scripts
 cloud-init/files
 yq
 *_run
