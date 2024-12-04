@@ -1,17 +1,19 @@
 project_name: k3s
-ram: "8G"
+ram: "10G"
 cpus: "6"
 hostports:
   - host: 8022
     vm: 22
   - host: 9090
     vm: 9090
-  - host: 8080
+  - host: 8080   #swagger-petstore
     vm: 30080
-  - host: 3000
+  - host: 3000   #Grafana
     vm: 3000
   - host: 6443
     vm: 6443
+  - host: 16686   #jaeger
+    vm: 16686
 vm_dir: ./vm/
 bridge_name: "br0"
 disksize: "200G"
