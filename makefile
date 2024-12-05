@@ -191,6 +191,12 @@ install_yq:
 .PHONY: prepare-vm
 prepare-vm: check-tools prepare-dirs download-cloud-image makeiso snapshot create_rook_disks make-launcher 
 
+.PHONY: start_lab
+start_lab: clean prepare-vm
+	@echo "Starting the lab environment..."
+	chmod +x $(PROJECT_NAME)_run   
+	./$(PROJECT_NAME)_run start  
+
 .PHONY: help
 help:
 	@echo "Usage: make <target>"
