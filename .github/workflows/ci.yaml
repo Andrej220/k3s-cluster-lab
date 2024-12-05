@@ -1,0 +1,35 @@
+name: CI - Setup Cluster in VM Lab
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  setup-cluster:
+    runs-on: self-hosted  # Use your self-hosted runner
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Virtualization Tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virt-manager
+
+      - name: Prepare and Start VM Lab
+        run: |
+          make start_lab
+
+      - name: Wait for Cluster Setup
+        run: sleep 600  
+
+      # Step 5: Verify Cluster Deployment (Optional)
+      # SSH into the VM and verify that the cluster is running properly.
+      - name: Verify Cluster Deployment
+        run: |
+          ssh -o StrictHostKeyChecking=no -p 2222 user@localhost "kubectl get nodes && echo 'Cluster is running'"
