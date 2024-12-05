@@ -3,10 +3,10 @@ name: CI - Setup Cluster in VM Lab
 on:
   push:
     branches:
-      - main
+      - ansible
   pull_request:
     branches:
-      - main
+      - ansible
 
 jobs:
   setup-cluster:
