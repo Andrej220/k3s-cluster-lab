@@ -7,6 +7,11 @@
 #       match:
 #         macaddress: "52:54:00:12:34:56"
 #       set-name: eth0
+
+# #cloud-config
+# bootcmd:
+#   - echo $INSTANCE_ID > /hello.txt
+
 users:
   - name: user
     lock_passwd: false
@@ -51,59 +56,5 @@ runcmd:
   - 'bash /mnt/scripts/swagger_petstore_setup.sh || exit 1'
   - 'bash /mnt/scripts/promtail_setup.sh || exit 1'
   - 'docker run -d --name jaeger --memory=2g --cpus=2 -e COLLECTOR_ZIPKIN_HTTP_PORT=9411 -p 5775:5775/udp -p 6831:6831/udp -p 6832:6832/udp -p 5778:5778 -p 16686:16686 -p 14268:14268 -p 14250:14250 -p 9411:9411 jaegertracing/all-in-one:1.34 || exit 1'
+  - 'docker run -d --name otel-collector --memory=2g --cpus=2 -p 4317:4317 -p 55680:55680 otel/opentelemetry-collector:latest'
   - 'bash /mnt/scripts/final_verification.sh'
-
-
-#   # Helm setup
-#   - 'sudo -i -u user bash -c "pip3 install openshift kubernetes"'
-#   - 'sudo -i -u user bash -c "ansible-galaxy collection install kubernetes.core"'
-#   - 'sudo -i -u user bash -c "curl -fsSL -o /home/user/get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3"'
-#   - 'sudo -i -u user bash -c "chmod 770 /home/user/get_helm.sh && /home/user/get_helm.sh"'
-# 
-#   # Wait for Helm to be installed and ready
-#   - |
-#     echo -n "Waiting for Helm installation to complete..."
-#     until helm version &> /dev/null; do
-#       echo "."
-#       sleep 1
-#     done
-#     echo "Helm is installed and ready!"
-# 
-#   # Update Ansible and install Helm charts
-#   - 'sudo -i -u user pip install --upgrade ansible'
-#   - 'sudo -i -u user ansible-galaxy collection install community.grafana'
-#   - 'sudo -i -u user helm repo add prometheus-community https://prometheus-community.github.io/helm-charts'
-#   - 'sudo -i -u user helm repo update'
-#   - 'sudo -i -u user helm repo add grafana https://grafana.github.io/helm-charts'
-#   - 'sudo -i -u user helm repo update'
-# 
-#   # Run Ansible playbooks to deploy lab
-#   - 'sudo -i -u user ansible-playbook -i /mnt/files/ansible/inventory/hosts.ini /mnt/files/ansible/k3s_lab_setup_new.yaml || exit 1'
-#   - 'sudo -i -u user ansible-playbook -i /mnt/files/ansible/inventory/hosts.ini /mnt/files/ansible/rook_ceph_install_new.yaml || exit 1'
-#   - 'sudo -i -u user ansible-playbook -i /mnt/files/ansible/inventory/hosts.ini /mnt/files/ansible/deployment_grafana_new.yaml || exit 1'
-# 
-#   # Prometheus installation and upgrade
-#   - 'sudo -i -u user helm install prometheus prometheus-community/prometheus --namespace monitoring || exit 1'
-#   - 'sudo -i -u user helm upgrade prometheus prometheus-community/prometheus --namespace monitoring --set server.service.type=NodePort --set server.service.nodePort=30900  --set server.service.port=9090 --set server.service.targetPort=9090'
-# 
-#   # Swagger-petstore deployment
-#   - 'sudo -i -u user helm upgrade --install swagger-petstore oci://ghcr.io/securecodebox/helm/swagger-petstore --namespace petstore --create-namespace'
-#   - 'sudo -i -u user kubectl -n petstore wait --for=condition=available deployment/swagger-petstore --timeout=120s'
-#   - 'sudo -i -u user kubectl patch deployment swagger-petstore -n petstore --patch-file /mnt/files/petstore_values.yaml'
-#   - 'sudo -i -u user kubectl patch service swagger-petstore -n petstore --patch-file /mnt/files/petstore_service_patch.yaml'
-#   - 'sudo -i -u user kubectl rollout restart deployment swagger-petstore -n petstore'
-# 
-#   # Promtail installation
-#   - 'sudo -i -u user helm upgrade --install promtail grafana/promtail -n monitoring -f /mnt/files/promtail_values.yaml || exit 1'
-#   - 'sudo -i -u user kubectl apply -f /mnt/files/promtail_svc.yaml'
-# 
-#   # Loki installation
-#   - 'sudo -i -u user helm upgrade --install loki grafana/loki-distributed -n monitoring -f /mnt/files/loki_values.yaml || exit 1'
-# 
-#   # Finalisation and resource checks
-#   - 'sudo -i -u user kubectl get pods --all-namespaces'
-#   - 'sudo -i -u user kubectl get namespaces'
-# 
-# final_message: "Cloud-init finished."
-
-
