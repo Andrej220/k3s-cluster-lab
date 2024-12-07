@@ -91,3 +91,22 @@
       ansible.builtin.command:
         cmd: kubectl -n rook-ceph exec deploy/rook-ceph-tools -- ceph osd pool set .mgr crush_rule replicated_rule_osd
       become_user: user
+
+    - name: Copy Rook-Ceph resources file
+      ansible.builtin.copy:
+        src: rook-ceph-resources.yaml
+        dest: /home/user/rook-ceph-resources.yaml
+
+    - name: Apply the Rook-Ceph resources (CephBlockPool, StorageClass, PVC)
+      ansible.builtin.command:
+        cmd: kubectl apply -f /home/user/rook-ceph-resources.yaml
+      become_user: user
+
+    - name: Wait for PVC to be Bound
+      ansible.builtin.command:
+        cmd: kubectl get pvc rook-ceph-pvc -o jsonpath='{.status.phase}'
+      register: pvc_status
+      until: pvc_status.stdout == "Bound"
+      retries: 30
+      delay: 10
+      become_user: user        
