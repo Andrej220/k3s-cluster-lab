@@ -31,7 +31,8 @@ jobs:
       - name: Wait for Cluster Setup
         run: |
           cloud_init_status=$(ssh -p 8022 user@localhost 'cloud-init status --wait' 2>&1)
-          if [[ "$cloud_init_status" != "status: done" ]]; then
+          grep "done" <<< "$cloud_init_status"
+          if ! grep -q "done" <<< "$cloud_init_status" ; then
             echo "Cloud-init failed or did not complete successfully."
             echo "Details: $cloud_init_status"
             exit 1
