@@ -19,6 +19,7 @@ users:
     shell: /bin/bash
     ssh_authorized_keys:
       - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDZgBuA47ycWCP1GGw2ApW4VeTWHBDjddw84w4GLP39KX6fxxq7JXEwmkrCMluYfIjT307WF/2Bi63eLEAakPJOppU4bs6i8bdJfve8DbBBqWwHTLqKMu9RSF8+Ff1s6GzZDsjMzFcFyVghjs2TY4TDtTVGnBz+5DIllKNpW0cCPIjcKyG6AB5Arb09YAX7e9t6eoknQWKnrY401kpKWrrfiNpI/sJ9F+AhSQi8A0gMveqgwNob0bxnWDtNOaukoXrgiuED0WjZFkBiHle4HRI3g4/xJh3nsuW/62fdVn+5ry3fnMjZy1YIbo2RnDLvfAzgOkowC04TRYITIsofZ5vLKV8JhqjiLBU1t+jJk2VurVk1i+CO/E2H52MpprqWTyBdZNPgpVYj6Rq/QKm3elOn+psTHAz1VE/0Td3QRoQ8Qv1Fzst6eRlfjbm7mP1ucyTIlU496MunS2ABbnCtoyVTekDqHsKAk/cWxBQavxnBIzTEbnVr2A4Ol32awyPkzTbcsw+j7PaZSKIgisAv0YD8l5WqpZ6CU1o+hcaMVoxn7JG7EwWiX7hL+hC+9f4VEXVtWPAv3ru9CZqdzMlneKRbIq+yJymXABvtuLmavbEp1GDldntXqBS6ZbgqWwDIf1b55FgRHglo9AP+EZgvYPFPInwmh+dqiwy3wWrtm8uerQ== master@localhost -p 5253, suse
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBQqNkSM5vQOZDxCY6DWBIqQi1+0J/xHtGCms/lF3ENO andrey@xmg.lan
     sudo: ALL=(ALL) NOPASSWD:ALL
 
 ssh_pwauth: false
