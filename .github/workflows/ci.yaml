@@ -22,6 +22,11 @@ jobs:
         id: wait_for_cluster
         run: |
           make start_lab
+          
+      - name: Wait for VM to Boot
+        run: |
+          echo "Waiting for the VM to initialize..."
+          sleep 100  
 
       - name: Wait for Cluster Setup
         run: |
