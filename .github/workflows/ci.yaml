@@ -23,10 +23,10 @@ jobs:
           make start_lab
 
       - name: Wait for Cluster Setup
-        run: sleep 600  
+        run: sleep 800  
 
       # Step 5: Verify Cluster Deployment (Optional)
       # SSH into the VM and verify that the cluster is running properly.
       - name: Verify Cluster Deployment
         run: |
-          ssh -o StrictHostKeyChecking=no -p 8022 user@localhost "bash -s" < ./full-test.sh
+          ssh -p 8022 user@localhost "bash -s" < ./full-test.sh
