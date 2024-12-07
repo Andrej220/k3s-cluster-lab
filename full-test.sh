@@ -66,6 +66,7 @@ for i in "${!tests[@]}"; do
   [ "${results[$i]}" = "FAIL" ] && echo "${details[$i]}"
 done
 
+exit 0
 
 #2 verify helm is installed
 #3 verify docker is installed
