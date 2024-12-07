@@ -19,14 +19,26 @@ jobs:
           submodules: recursive 
 
       - name: Prepare and Start VM Lab
+        id: wait_for_cluster
         run: |
           make start_lab
 
       - name: Wait for Cluster Setup
-        run: sleep 800  
+        run: |
+          cloud_init_status=$(ssh -p 8022 user@localhost 'cloud-init status --wait' 2>&1)
+          if [[ "$cloud_init_status" != "status: done" ]]; then
+            echo "Cloud-init failed or did not complete successfully."
+            echo "Details: $cloud_init_status"
+            exit 1
+          fi
+          echo "Cloud-init completed successfully!"
 
-      # Step 5: Verify Cluster Deployment (Optional)
-      # SSH into the VM and verify that the cluster is running properly.
+      - name: Display Cloud-Init Logs on Failure
+        if: failure()
+        run: |
+          ssh -p 8022 user@localhost 'tail -n 50 /var/log/cloud-init.log'
+          
       - name: Verify Cluster Deployment
+        if: sucess()
         run: |
           ssh -p 8022 user@localhost "bash -s" < ./full-test.sh
