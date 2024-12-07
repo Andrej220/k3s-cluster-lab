@@ -37,8 +37,8 @@ jobs:
         if: failure()
         run: |
           ssh -p 8022 user@localhost 'tail -n 50 /var/log/cloud-init.log'
-          
+
       - name: Verify Cluster Deployment
-        if: sucess()
+        if: success()
         run: |
           ssh -p 8022 user@localhost "bash -s" < ./full-test.sh
