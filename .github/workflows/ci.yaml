@@ -22,11 +22,22 @@ jobs:
         id: wait_for_cluster
         run: |
           make start_lab
-          
-      - name: Wait for VM to Boot
+      
+      - name: Wait for VM to be Reachable          
         run: |
-          echo "Waiting for the VM to initialize..."
-          sleep 100  
+          timeout=300  
+          start_time=$(date +%s)
+          while ! ssh -o ConnectTimeout=5 -p 8022 user@localhost 'echo "VM is ready"'; do
+            echo "Waiting for SSH to be available..."
+            sleep 5
+            current_time=$(date +%s)
+            elapsed=$((current_time - start_time))
+            if [[ $elapsed -ge $timeout ]]; then
+              echo "Timed out waiting for SSH to be available."
+              exit 1
+            fi
+          done
+          echo "VM is reachable!"
 
       - name: Wait for Cluster Setup
         run: |
@@ -42,7 +53,7 @@ jobs:
       - name: Display Cloud-Init Logs on Failure
         if: failure()
         run: |
-          ssh -p 8022 user@localhost 'tail -n 50 /var/log/cloud-init.log'
+          ssh -p 8022 user@localhost 'sudo tail -n 50 /var/log/cloud-init.log'
 
       - name: Verify Cluster Deployment
         if: success()
