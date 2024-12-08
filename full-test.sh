@@ -1,72 +1,73 @@
 #!/bin/bash
 
-tests=("Check kubectl" "Check helm" "Check docker" "Check swagger" "Check ceph-pool pvc" "Check grafana" ...)
-results=()
+declare -A tests=(
+  ["Check_kubectl"]="command_check kubectl"
+  ["Check_helm"]="command_check helm"
+  ["Check_docker"]="command_check docker"
+  ["Check_grafana"]="http_health_check http://localhost:3000/api/health 'database.*ok'"
+  ["Check_prometheus"]="http_health_check http://localhost:30900/-/ready 'Ready'"
+  ["Check_promtail"]="http_health_check http://localhost:31059/ready 'Ready'"
+  ["Check_Loki"]="loki_health_check"
+  ["Check_cephblockpool"]="run_command kubectl -n rook-ceph get cephblockpool replicapool -o jsonpath='{.status.phase}' Ready"
+  ["Check_swagger-petstore"]="curl_check http://localhost:30080"
+)
+
+declare -A results
 details=()
+failed_counter=0
 
-check_kubectl() {
-  if ! command -v kubectl &> /dev/null; then
-    return 1
-  fi
-  return 0
+
+command_check() {
+  command -v "$1" &> /dev/null
 }
 
-check_helm() {
-  if ! command -v helm &> /dev/null; then
-    return 1
-  fi
-  return 0
+http_health_check() {
+  curl -s "$1" | grep -q "$2"
 }
 
-check_docker() {
-  if ! command -v docker &> /dev/null; then
-    return 1
-  fi
-  return 0
+loki_health_check() {
+  kubectl exec -n monitoring "$(kubectl get pods -n monitoring -l app=grafana -o jsonpath='{.items[0].metadata.name}')" \
+    -- curl -s loki-loki-distributed-memberlist.monitoring.svc.cluster.local:3100/ready | grep -q 'ready'
+}
+
+run_command(){
+    last_arg="${!#}"  
+   "${@:1:$(($#-1))}" | grep -q "$last_arg"
+}
+
+curl_check() {
+    curl $@ &> /dev/null
 }
 
 # Run tests
-for test_name in "${tests[@]}"; do
-  case $test_name in
-    "Check kubectl")
-        check_kubectl
-        test_result=$?
-        ;;
-     "Check helm")
-        check_helm
-        test_result=$?    
-        ;;
-    "Check docker")
-        check_helm
-        test_result=$?
-        ;;
-  esac
-  
-  if [ $test_result -ne 0 ]; then
-    results+=("FAIL")
-    details+=("$test_name failed. See test_results.log for details.")
+for test_name in "${!tests[@]}"; do
+  eval "${tests[$test_name]}"
+  if [ $? -eq 0 ]; then
+    results["$test_name"]="PASS"
   else
-    results+=("PASS")
-    details+=("$test_name passed.")
+    ((failed_counter++))
+    results["$test_name"]="FAIL"
+    details["$test_name"]="$test_name: FAILED"
   fi
 done
 
 # Print summary
-echo "Test Summary:"
-for i in "${!tests[@]}"; do
-  if [ "${results[$i]}" = "PASS" ]; then
-    echo -e "${GREEN}${tests[$i]}: ${results[$i]}${NC}"
+for test_name in "${!tests[@]}"; do
+  if [ "${results[$test_name]}" == "PASS" ]; then
+    echo "${test_name}: ${results[$test_name]}"
   else
-    echo -e "${RED}${tests[$i]}: ${results[$i]}${NC}"
+    echo "${details[$test_name]}"
   fi
 done
 
-# Print details for fails
-for i in "${!tests[@]}"; do
-  [ "${results[$i]}" = "FAIL" ] && echo "${details[$i]}"
-done
+echo "==============================="
+if [ "$failed_counter" -eq 0 ]; then 
+  echo "All tests PASSED"
+else
+  echo "$failed_counter test(s) FAILED"
+fi
 
-exit 0
+exit "$failed_counter"
 
 #2 verify helm is installed
 #3 verify docker is installed
