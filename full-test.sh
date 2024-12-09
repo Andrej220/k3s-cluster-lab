@@ -22,7 +22,18 @@ command_check() {
 }
 
 http_health_check() {
-  curl -s "$1" | grep -q "$2"
+  local url=$1
+  local expected=$2
+  echo "Trying curl -s $url"
+  for i in {1..50}; do
+    if curl -s "$url" | grep -q "$expected"; then
+      echo "OK"
+      return 0
+    fi
+    echo -n "."
+    sleep 1 
+  done
+  return 1 
 }
 
 loki_health_check() {
@@ -66,6 +77,7 @@ if [ "$failed_counter" -eq 0 ]; then
 else
   echo "$failed_counter test(s) FAILED"
 fi
+echo
 
 exit "$failed_counter"
 
