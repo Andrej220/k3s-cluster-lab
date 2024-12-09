@@ -1,21 +1,32 @@
 project_name: k3s
 ram: "10G"
 cpus: "6"
-hostports:
-  - host: 8022
+services:
+  - name: ssh
+    host: 8022   # ssh
     vm: 22
-  - host: 9090
+  - name: 9090
+    host: 9090
     vm: 9090
-  - host: 8080   #swagger-petstore
+  - name: petstore
+    host: 8080   #swagger-petstore
     vm: 30080
-  - host: 3000   #Grafana
+  - name: grafana
+    host: 3000   #Grafana
     vm: 3000
-  - host: 6443
+  - name: 6443
+    host: 6443
     vm: 6443
-  - host: 16686   #jaeger
+  - name: jaeger
+    host: 16686   #jaeger
     vm: 16686
 vm_dir: ./vm/
 bridge_name: "br0"
 disksize: "200G"
 interface: "eth1"
 tapinterface: "tap0"
+
+#qemu-system-x86_64 -monitor unix:/tmp/k3_vm_monitor.sock,server,nowait -display none -m 10G -enable-kvm -cpu host -smp cpus=6 
+#-hda ./vm/k3s_snapshot.qcow2 -drive file=./vm/disk1.qcow2,if=virtio,cache=none -drive file=./vm/disk2.qcow2,if=virtio,cache=none 
+#-drive file=./vm/disk3.qcow2,if=virtio,cache=none -drive file=./vm/disk4.qcow2,if=virtio,cache=none -device e1000,netdev=net0 
+#-netdev user,id=net0,hostfwd=tcp::8022-:22 -cdrom ./cloud-init/cloud-init.iso

@@ -77,4 +77,4 @@ Contributions are welcome! Please fork the repository, create a new branch, and 
 Distributed under the MIT License. See `LICENSE` for more information.
 
 ## Contact
-Andrey Zargarov - [LinkedIn](https://https://www.linkedin.com/in/andrey-zargarov/) 
+Andrey Zargarov - [LinkedIn](https://www.linkedin.com/in/andrey-zargarov/) 
