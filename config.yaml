@@ -1,0 +1,38 @@
+project_name: k3s
+
+resources:
+  ram: "10G"
+  cpus: "6"
+  disksize: "200G"
+
+vm:
+  directory: ./vm/
+  bridge_name: "br0"
+  interface: "eth1"
+  tap_interface: "tap0"
+
+ports:
+  grafana: 3000
+  promtail: 31059
+  petstore: 30080
+  prometheus: 30900
+
+services:
+  - name: ssh
+    host_port: 8022
+    vm_port: 22
+  - name: api
+    host_port: 9090
+    vm_port: 9090
+  - name: petstore
+    host_port: 8080
+    vm_port: 30080
+  - name: grafana
+    host_port: 3000
+    vm_port: 3000
+  - name: kubernetes
+    host_port: 6443
+    vm_port: 6443
+  - name: jaeger
+    host_port: 16686
+    vm_port: 16686

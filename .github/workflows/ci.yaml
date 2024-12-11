@@ -10,7 +10,7 @@ on:
 
 jobs:
   setup-cluster:
-    runs-on: self-hosted  # Use your self-hosted runner
+    runs-on: self-hosted 
 
     steps:
       - name: Checkout code
@@ -58,4 +58,8 @@ jobs:
       - name: Verify Cluster Deployment
         if: success()
         run: |
-          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 8022 user@localhost "bash -s" < ./full-test.sh
+          if ! ./run_test_on_vm.sh; then
+            echo "Remote test failed"
+            exit 1
+          fi
+          # ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 8022 user@localhost "bash -s" < ./full-test.sh

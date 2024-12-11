@@ -11,7 +11,7 @@ UBUNTU_VERSION ?= jammy
 IMAGE_URL_BASE = https://cloud-images.ubuntu.com/$(UBUNTU_VERSION)/current
 IMAGE_NAME := $(UBUNTU_VERSION)-server-cloudimg-amd64.img
 YAML_PARSER := ./yq
-CONFIG_FILE := ./config.yml
+CONFIG_FILE := ./config.yaml
 VMRUN_SCRIPT :=./vm-runner/vmrun
 CLOUD_INIT_DIR := ./cloud-init/
 SCRIPTS_DIR := scripts
@@ -25,9 +25,10 @@ IMG_FORMAT = qcow2
 GRAFANA_CONTENT := \#GRAFANA_CONTENT
 define LAUNCHER
 #!/bin/bash 
-$(VMRUN_SCRIPT) -c ./config.yml $$1 
+$(VMRUN_SCRIPT) -c ./$(CONFIG_FILE) $$1 
 endef
 
+.PHONY: check_yq
 check_yq:
 	@if [ ! -x "./yq" ]; then \
 		echo "yq not found, installing..."; \
@@ -37,8 +38,8 @@ check_yq:
 .PHONY: read_config
 read_config: check_yq
 	@echo "Reading configuration from $(CONFIG_FILE)"
-	$(eval PROJECT_NAME := $(shell ./yq -e ".project_name" config.yml || echo "k3"))
-	$(eval VM_DIR := $(shell ./yq -e ".vm_dir" config.yml || echo "./vm/"))
+	$(eval PROJECT_NAME := $(shell ./yq -e ".project_name" $(CONFIG_FILE) || echo "k3"))
+	$(eval VM_DIR := $(shell ./yq -e ".vm.directory" $(CONFIG_FILE) || echo "./vm/"))
 
 	$(eval PROJECT_DIR := $(CURDIR))
 	$(eval BASE_IMAGE := $(VM_DIR)/$(PROJECT_NAME).qcow2)
@@ -49,9 +50,9 @@ read_config: check_yq
 	$(eval USER_DATA_YAML := $(CLOUD_INIT_DIR)user-data.yaml )
 	$(eval USER_DATA_MERGED := $(CLOUD_INIT_DIR)user-data-merged.yaml)
 	$(eval GRAFANA_YAML := $(CLOUD_INIT_DIR)grafana.yaml)
-	$(eval CPUS := $(shell ./yq -e ".cpus" config.yml || echo "2"))
-	$(eval RAM := $(shell ./yq -e ".ram" config.yml || echo "4G"))
-	$(eval DISK_SIZE := $(shell ./yq -e ".disksize" config.yml || echo "200G"))
+	$(eval CPUS := $(shell ./yq -e ".resources.cpus" $(CONFIG_FILE) || echo "2"))
+	$(eval RAM := $(shell ./yq -e ".resources.ram" $(CONFIG_FILE) || echo "4G"))
+	$(eval DISK_SIZE := $(shell ./yq -e ".resources.disksize" $(CONFIG_FILE) || echo "200G"))
 	$(eval IMAGES := \
     	$(VM_DIR)disk1.qcow2 \
     	$(VM_DIR)disk2.qcow2 \

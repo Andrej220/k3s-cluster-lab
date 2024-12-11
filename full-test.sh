@@ -1,15 +1,21 @@
 #!/bin/bash
 
+#if not set
+: ${GRAFANA_PORT:=3000}
+: ${PROMTAIL_PORT:=31059}
+: ${PETSTORE_PORT:=30080}
+: ${PROMETHEUS_PORT:=30900}
+
 declare -A tests=(
   ["Check_kubectl"]="command_check kubectl"
   ["Check_helm"]="command_check helm"
   ["Check_docker"]="command_check docker"
-  ["Check_grafana"]="http_health_check http://localhost:3000/api/health 'database.*ok'"
-  ["Check_prometheus"]="http_health_check http://localhost:30900/-/ready 'Ready'"
-  ["Check_promtail"]="http_health_check http://localhost:31059/ready 'Ready'"
+  ["Check_grafana"]="http_health_check http://localhost:$GRAFANA_PORT/api/health 'database.*ok'"
+  ["Check_prometheus"]="http_health_check http://localhost:$PROMETHEUS_PORT/-/ready 'Ready'"
+  ["Check_promtail"]="http_health_check http://localhost:$PROMTAIL_PORT/ready 'Ready'"
   ["Check_Loki"]="loki_health_check"
   ["Check_cephblockpool"]="run_command kubectl -n rook-ceph get cephblockpool replicapool -o jsonpath='{.status.phase}' Ready"
-  ["Check_swagger-petstore"]="curl_check http://localhost:30080"
+  ["Check_swagger-petstore"]="curl_check http://localhost:$PETSTORE_PORT"
 )
 
 declare -A results
