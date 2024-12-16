@@ -1,0 +1,38 @@
+apiVersion: ceph.rook.io/v1
+kind: CephCluster
+metadata:
+  name: rook-ceph
+  namespace: rook-ceph
+spec:
+  cephVersion:
+    image: quay.io/ceph/ceph:v17.2.6 
+    allowUnsupported: false
+  
+  dataDirHostPath: /var/lib/rook
+  mon:
+    count: 1
+    allowMultiplePerNode: true
+  storage:
+    useAllNodes: false
+    nodes:
+    - name: k3slab
+    deviceFilter: ^(vd[a-d])$
+  dashboard:
+    enabled: true
+  crashCollector:
+    disable: false
+  mgr:
+    count: 1
+  placement:
+    mon:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+              - k3slab
+  annotations:
+    rook.io/image: 
+      image: docker.io/rook/ceph:v1.15.6

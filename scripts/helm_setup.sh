@@ -16,6 +16,7 @@ echo "Helm is installed and ready!"
 sudo -i -u user pip install --upgrade ansible
 sudo -i -u user ansible-galaxy collection install community.grafana
 sudo -i -u user helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-sudo -i -u user helm repo update
+sudo -i -u user helm repo add bitnami https://charts.bitnami.com/bitnami
 sudo -i -u user helm repo add grafana https://grafana.github.io/helm-charts
+sudo -i -u user helm repo add rook-release https://charts.rook.io/release
 sudo -i -u user helm repo update
