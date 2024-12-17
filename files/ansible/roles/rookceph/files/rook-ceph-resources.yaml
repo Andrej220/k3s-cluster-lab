@@ -15,7 +15,7 @@ spec:
     useAllNodes: true
     useAllDevices: false
     nodes:
-      - name: <node-name>
+      - name: k3slab
         devices:
           - name: vda
           - name: vdb
