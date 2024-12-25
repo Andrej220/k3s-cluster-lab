@@ -10,7 +10,7 @@ sudo -i -u user kubectl apply -f "$MANIFESTPATH"/monitoring_namespace.yaml
 echo "Installing Config map"
 sudo -i -u user kubectl apply -f "$MANIFESTPATH"/grafana_datasources_configmap.yaml
 echo "Deploing grafan"
-sudo -i -u user kubectl apply -f "$MANIFESTPATH"/grafana.yaml
+sudo -i -u user kubectl apply -f "$MANIFESTPATH"/grafana_deployment.yaml
 kubectl rollout status deployment/grafana -n monitoring
 
 echo "Installing Prometheus"
