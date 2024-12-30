@@ -25,7 +25,7 @@ IMG_FORMAT = qcow2
 GRAFANA_CONTENT := \#GRAFANA_CONTENT
 define LAUNCHER
 #!/bin/bash 
-$(VMRUN_SCRIPT) -c ./$(CONFIG_FILE) $$1 
+$(VMRUN_SCRIPT) -c ./$(CONFIG_FILE) $$@ 
 endef
 
 .PHONY: check_yq
