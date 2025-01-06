@@ -59,4 +59,5 @@ runcmd:
   - 'bash /mnt/scripts/promtail_setup.sh || exit 1'
 #  - 'docker run -d --name jaeger --memory=2g --cpus=2 -e COLLECTOR_ZIPKIN_HTTP_PORT=9411 -p 5775:5775/udp -p 6831:6831/udp -p 6832:6832/udp -p 5778:5778 -p 16686:16686 -p 14268:14268 -p 14250:14250 -p 9411:9411 jaegertracing/all-in-one:1.34 || exit 1'
   - 'docker run -d --name otel-collector --memory=2g --cpus=2 -p 4317:4317 -p 55680:55680 otel/opentelemetry-collector:latest'
+  - 'bash /mnt/scripts/argocd_setup.sh || exit 1'
   - 'bash /mnt/scripts/final_verification.sh'

@@ -9,7 +9,7 @@ echo "Installing namespace - monitoring"
 sudo -i -u user kubectl apply -f "$MANIFESTPATH"/monitoring_namespace.yaml
 echo "Installing Config map"
 sudo -i -u user kubectl apply -f "$MANIFESTPATH"/grafana_datasources_configmap.yaml
-echo "Deploing grafan"
+echo "Deploing grafana"
 sudo -i -u user kubectl apply -f "$MANIFESTPATH"/grafana_deployment.yaml
 kubectl rollout status deployment/grafana -n monitoring
 
