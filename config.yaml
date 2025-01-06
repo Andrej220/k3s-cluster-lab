@@ -16,6 +16,7 @@ ports:
   promtail: 31059
   petstore: 30080
   prometheus: 30900
+  argocd: 8443
 
 services:
   - name: ssh

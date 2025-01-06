@@ -5,6 +5,7 @@
 : ${PROMTAIL_PORT:=31059}
 : ${PETSTORE_PORT:=30080}
 : ${PROMETHEUS_PORT:=30900}
+: ${ARGOCD_PORT:=8443}
 
 declare -A tests=(
   ["Check_kubectl"]="command_check kubectl"
@@ -16,6 +17,7 @@ declare -A tests=(
   ["Check_Loki"]="loki_health_check"
   ["Check_cephblockpool"]="run_command kubectl -n rook-ceph get cephblockpool replicapool -o jsonpath='{.status.phase}' Ready"
   ["Check_swagger-petstore"]="curl_check http://localhost:$PETSTORE_PORT"
+  ["Check_argocd"]="curl_check http://localhost:$ARGOCD_PORT"
 )
 
 declare -A results
