@@ -6,6 +6,9 @@ sudo -i -u user kubectl apply -f /mnt/files/manifests/argocd_namespace.yaml
 echo "Installing ArgoCD"
 sudo -i -u user kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
+echo "Waiting for ArgoCD to reach Ready state..."
+kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=argocd-application-controller -n argocd --timeout=300s
+
 echo "Installing loadbalancer"
 sudo -i -u user kubectl apply -f /mnt/files/manifests/argocd-loadbalancer.yaml
 
