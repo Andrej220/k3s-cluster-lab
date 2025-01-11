@@ -2,26 +2,29 @@
 
 set -e  
 
+SCRIPT_DIR=$(dirname "$(realpath "${BASH_SOURCE[0]}")")
+source "$SCRIPT_DIR"/config.env.sh
+
 echo "Installing Rook-Ceph operator..."
-sudo -i -u user helm install --create-namespace --namespace rook-ceph rook-ceph rook-release/rook-ceph -f /mnt/files/rook_values.yaml
+sudo -i -u user helm install --create-namespace --namespace rook-ceph rook-ceph rook-release/rook-ceph -f "$FILES_DIR"/rook_values.yaml
 
 echo "Waiting for Rook-Ceph operator to be ready..."
 kubectl wait --namespace rook-ceph --for=condition=ready pod -l app=rook-ceph-operator --timeout=300s
 
 echo "Installing Rook-Ceph cluster..."
-sudo -i -u user kubectl apply -f /mnt/files/ceph_cluster.yaml
+sudo -i -u user kubectl apply -f "$FILES_DIR"/ceph_cluster.yaml
 
 echo "Applying block pool configuration..."
-sudo -i -u user kubectl apply -f /mnt/files/blockpool.yaml
+sudo -i -u user kubectl apply -f "$FILES_DIR"/blockpool.yaml
 
 echo "Applying storage class configuration..."
-sudo -i -u user kubectl apply -f /mnt/files/storageclass.yaml
+sudo -i -u user kubectl apply -f "$FILES_DIR"/storageclass.yaml
 
 echo "Waiting for CephCluster to reach Ready state..."
 kubectl wait --namespace rook-ceph --for=condition=ready cephcluster rook-ceph --timeout=600s
 
 echo "Deploying toolbox..."
-sudo -i -u user kubectl apply -f /mnt/files/toolbox.yaml
+sudo -i -u user kubectl apply -f "$FILES_DIR"/toolbox.yaml
 
 echo "Waiting for toolbox pod to be ready..."
 kubectl wait --namespace rook-ceph --for=condition=ready pod -l app=rook-ceph-tools --timeout=300s

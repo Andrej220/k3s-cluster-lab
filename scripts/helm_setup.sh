@@ -1,10 +1,14 @@
 #!/bin/bash
 set -e
+
+SCRIPT_DIR=$(dirname "$(realpath "${BASH_SOURCE[0]}")")
+source "$SCRIPT_DIR"/config.env.sh
+
 echo "Setting up Helm and dependencies..."
 sudo -i -u user bash -c "pip3 install openshift kubernetes"
 sudo -i -u user bash -c "ansible-galaxy collection install kubernetes.core"
-sudo -i -u user bash -c "curl -fsSL -o /home/user/get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3"
-sudo -i -u user bash -c "chmod 770 /home/user/get_helm.sh && /home/user/get_helm.sh"
+sudo -i -u user bash -c "curl -fsSL -o "$HOME_DIR"/get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3"
+sudo -i -u user bash -c "chmod 770 "$HOME_DIR"/get_helm.sh && "$HOME_DIR"/get_helm.sh"
 echo -n "Waiting for Helm installation to complete..."
 until helm version &> /dev/null; do
   echo "."
