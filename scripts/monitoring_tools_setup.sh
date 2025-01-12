@@ -16,7 +16,7 @@ kubectl rollout status deployment/grafana -n monitoring
 
 echo "Installing Prometheus"
 sudo -i -u user helm install prometheus prometheus-community/prometheus --namespace monitoring --wait --timeout 300s
-sudo -i -u user helm upgrade prometheus prometheus-community/prometheus --namespace monitoring --set server.service.type=NodePort --set server.service.nodePort=30900  --set server.service.port=9090 --set server.service.targetPort=9090 --wait --timeout 300s
+sudo -i -u user helm upgrade prometheus prometheus-community/prometheus --namespace monitoring -f "$MANIFESTS_DIR"/prometheus_values.yaml --wait --timeout 300s
 
 echo "Installing Loki"
 sudo -i -u user helm upgrade --install loki grafana/loki-distributed -n monitoring -f "$FILES_DIR"/loki_values.yaml --wait --timeout 300s
