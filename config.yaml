@@ -40,3 +40,6 @@ services:
   - name: jaeger
     host_port: 16686
     vm_port: 16686
+  - name: prometheus
+    host_port: 30900
+    vm_port: 30900
