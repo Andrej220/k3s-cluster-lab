@@ -22,13 +22,14 @@ argocd login "$ARGOSRV" \
   --username "$ARGOUSR" \
   --password "$ARGOPWD" \
   --insecure > /dev/null
-
 echo "Password change verified successfully!"
-argocd app create my-nginx-app \
+
+echo "Install ArgoCD applications"
+echo "Install Nginx"
+argocd app create nginx-app \
   --repo https://github.com/Andrej220/nginx.git \
   --path . \
   --dest-server https://kubernetes.default.svc \
   --dest-namespace nginx \
   --sync-option CreateNamespace=true \
   --sync-policy automated
-
