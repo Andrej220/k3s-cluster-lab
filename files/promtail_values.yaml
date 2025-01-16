@@ -3,13 +3,13 @@ server:
   grpc_listen_port: 0
 
 clients:
-  - url: http://loki-loki-distributed-query-frontend.monitoring:3100/loki/api/v1/push
+  - url: http://loki-loki-distributed-query-frontend.monitoring.svc.cluster.local:3100/loki/api/v1/push
 
 positions:
   filename: /var/log/positions.yaml
 
 scrape_configs:
-  - job_name: kubernetes-pods-swagger-petstore
+  - job_name: swagger-petstore
     kubernetes_sd_configs:
       - role: pod
     pipeline_stages:
@@ -18,6 +18,25 @@ scrape_configs:
       - source_labels: [__meta_kubernetes_pod_label_app]
         action: keep
         regex: swagger-petstore
+      - source_labels: [__meta_kubernetes_pod_name]
+        target_label: pod
+      - source_labels: [__meta_kubernetes_namespace]
+        target_label: namespace
+      - source_labels: [__meta_kubernetes_container_name]
+        target_label: container
+  - job_name: nginx-logs
+    kubernetes_sd_configs:
+      - role: pod
+    pipeline_stages:
+      - regex:
+          expression: '^(?P<remote_addr>\S+) - (?P<remote_user>\S+) \[(?P<time_local>[^\]]+)\] "(?P<request>[^"]*)" (?P<status>\d+) (?P<body_bytes_sent>\d+) "(?P<http_referer>[^"]*)" "(?P<http_user_agent>[^"]*)"$'
+      - timestamp:
+        source: time_local
+        format: "02/Jan/2006:15:04:05 -0700"
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        action: keep
+        regex: nginx
       - source_labels: [__meta_kubernetes_pod_name]
         target_label: pod
       - source_labels: [__meta_kubernetes_namespace]
