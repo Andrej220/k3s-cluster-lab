@@ -24,8 +24,6 @@ helm upgrade --install loki grafana/loki-distributed -n monitoring -f "$FILES_DI
 echo "Installing Jaeger"
 helm upgrade --install jaeger bitnami/jaeger -n monitoring  --wait --timeout 300s
 
-echo "Installing Open Telemetry==========================================="
-helm repo list
-helm search repo open-telemetry
+echo "Installing Open Telemetry"
 helm install otel-collector-cluster open-telemetry/opentelemetry-collector --values "$MANIFESTS_DIR"/otel_values.yaml
 echo "Monitoring tools setup completed."
