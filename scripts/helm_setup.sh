@@ -23,4 +23,5 @@ sudo -i -u user helm repo add prometheus-community https://prometheus-community.
 sudo -i -u user helm repo add bitnami https://charts.bitnami.com/bitnami
 sudo -i -u user helm repo add grafana https://grafana.github.io/helm-charts
 sudo -i -u user helm repo add rook-release https://charts.rook.io/release
+sudo -i -u user helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
 sudo -i -u user helm repo update
