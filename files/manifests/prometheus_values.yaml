@@ -16,4 +16,4 @@ extraScrapeConfigs: |
     scheme: http
     static_configs:
       - targets:
-          - 'nginx-exporter.default.svc.cluster.local:9113'
+          - 'nginx-exporter.nginx.svc.cluster.local:9113'
