@@ -40,7 +40,7 @@ read_config: check_yq
 	@echo "Reading configuration from $(CONFIG_FILE)"
 	$(eval PROJECT_NAME := $(shell ./yq -e ".project_name" $(CONFIG_FILE) || echo "k3"))
 	$(eval VM_DIR := $(shell ./yq -e ".vm.directory" $(CONFIG_FILE) || echo "./vm/"))
-
+	$(eval BASEIMAGE_SIZE := $(shell ./yq -e ".resources.baseimage_size" $(CONFIG_FILE) || echo "+20G"))
 	$(eval PROJECT_DIR := $(CURDIR))
 	$(eval BASE_IMAGE := $(VM_DIR)/$(PROJECT_NAME).qcow2)
 	$(eval SNAPSHOT_IMAGE := $(VM_DIR)$(PROJECT_NAME)_snapshot.qcow2)
@@ -84,7 +84,7 @@ download-cloud-image:
 	@if [ ! -f "$(BASE_IMAGE)" ]; then \
 		echo "Downloading latest $(UBUNTU_VERSION) cloud image to $(VM_DIR)..."; \
 		$(CURL) "$(BASE_IMAGE)" "$(IMAGE_URL_BASE)/$(IMAGE_NAME)" || { echo "Download failed"; exit 1; }; \
-		$(QEMU_IMG) resize "$(BASE_IMAGE)" +18G; \
+		$(QEMU_IMG) resize "$(BASE_IMAGE)" $(BASEIMAGE_SIZE); \
 		echo "Download completed: $(BASE_IMAGE)"; \
 	else \
 		echo "Image already exists: $(BASE_IMAGE)"; \

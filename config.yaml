@@ -3,6 +3,7 @@ project_name: k3s
 resources:
   ram: "10G"
   cpus: "6"
+  baseimage_size: "+40G"
   disksize: "200G"
 
 vm:
