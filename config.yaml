@@ -30,7 +30,7 @@ services:
     host_port: 9090
     vm_port: 9090
   - name: petstore
-    host_port: 8080
+    host_port: 30080
     vm_port: 30080
   - name: grafana
     host_port: 3000
