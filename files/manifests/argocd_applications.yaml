@@ -1,0 +1,50 @@
+--- 
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nginx-test
+  labels:
+    app: nginx-test
+--- 
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nginx-prod
+  labels:
+    app: nginx-prod
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nginx-test
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: ../nginx/
+    targetRevision: test
+    path:  overlays/test
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: nginx-test
+  syncPolicy:
+    automated: {}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nginx-prod
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: ../nginx
+    targetRevision: master
+    path: overlays/production
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: nginx-prod
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
