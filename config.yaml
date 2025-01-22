@@ -44,3 +44,6 @@ services:
   - name: prometheus
     host_port: 30900
     vm_port: 30900
+  - name: external
+    host_port: 8080
+    vm_port: 30880
