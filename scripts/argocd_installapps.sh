@@ -26,10 +26,11 @@ echo "Password change verified successfully!"
 
 echo "Install ArgoCD applications"
 echo "Install Nginx"
-argocd app create nginx-app \
-  --repo https://github.com/Andrej220/nginx.git \
-  --path . \
-  --dest-server https://kubernetes.default.svc \
-  --dest-namespace nginx \
-  --sync-option CreateNamespace=true \
-  --sync-policy automated
+kubectl apply -f "$MANIFESTS_DIR"/argocd_applications.yaml 
+# argocd app create nginx-app \
+#   --repo https://github.com/Andrej220/nginx.git \
+#   --path . \
+#   --dest-server https://kubernetes.default.svc \
+#   --dest-namespace nginx \
+#   --sync-option CreateNamespace=true \
+#   --sync-policy automated
