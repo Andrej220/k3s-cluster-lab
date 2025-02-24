@@ -3,13 +3,20 @@
 set -e
 
 SCRIPT_DIR=$(dirname "$(realpath "${BASH_SOURCE[0]}")")
-source "$SCRIPT_DIR"/config.env.sh
+if [[ -f "$SCRIPT_DIR/config.env.sh" ]]; then
+    source "$SCRIPT_DIR/config.env.sh"
+else
+    echo "Error: config.env.sh not found in $SCRIPT_DIR"
+    exit 1
+fi
 
 ARGODEFPWD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
 ARGOPWD=$(kubectl -n argocd get secret argocd-admin-secret -o jsonpath="{.data.password}" | base64 -d)
 
+echo "Checking ArgoCD CLI"
 command -v argocd > /dev/null || { echo "argocd CLI not found! Install it first."; exit 1; }
 
+echo "Login to ArgoCD"
 argocd login --username $ARGOUSR --password $ARGODEFPWD $ARGOSRV --insecure
 
 echo "Updating password..."
