@@ -38,3 +38,20 @@ TOOLBOX_MANIFEST="$FILES_DIR/toolbox.yaml"
 PETSTORE_VALUES_PATCH="$FILES_DIR/petstore_values.yaml"
 PROMTAIL_VALUES="$FILES_DIR/promtail_values.yaml"
 ARGOCD_SECRET="$MANIFESTS_DIR"/argocd_secrets.yaml
+
+
+check_dirs() {
+    local dirs=("$@")
+    for dir in "${dirs[@]}"; do
+        if [[ ! -d "$dir" ]]; then
+            echo "Error: Directory $dir does not exist or is not a directory"
+            exit 1
+        fi
+        if [[ ! -r "$dir" ]]; then
+            echo "Error: Directory $dir is not readable"
+            exit 1
+        fi
+    done
+}
+
+check_dirs "$SCRIPTS_DIR" "$FILES_DIR" "$MANIFESTS_DIR" "$HOME_DIR"
