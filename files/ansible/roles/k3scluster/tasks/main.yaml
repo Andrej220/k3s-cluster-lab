@@ -40,6 +40,14 @@
         line: 'export KUBECONFIG=/home/user/.kube/config'
         create: yes
         owner: user
+
+    - name: Ensure rancher registries.yaml is present
+      copy:
+          src: files/registries.yaml
+          dest: /etc/rancher/k3s/registries.yaml
+          owner: root
+          group: root
+          mode: '0644'    
         
     - name: Add Rook Helm repo
       ansible.builtin.command: helm repo add rook-release https://charts.rook.io/release
