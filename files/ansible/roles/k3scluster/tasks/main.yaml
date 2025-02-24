@@ -47,7 +47,13 @@
           dest: /etc/rancher/k3s/registries.yaml
           owner: root
           group: root
-          mode: '0644'    
+          mode: '0644'  
+    
+    - name: Restart k3s service
+      service:
+        name: k3s
+        state: restarted
+        become: yes
         
     - name: Add Rook Helm repo
       ansible.builtin.command: helm repo add rook-release https://charts.rook.io/release
