@@ -1,10 +1,16 @@
 - name: Kubernetes Cluster Setup
   tags: k3scluster
+  become: yes
   block:
     - name: Install K3s
       shell: curl -sfL https://get.k3s.io | sh -
       args:
         creates: /usr/local/bin/k3s
+
+    - name: Adjust kubeconfig permissions for non-root access
+      ansible.builtin.file:
+        path: /etc/rancher/k3s/k3s.yaml
+        mode: '0644'  
 
     - name: Wait for all nodes to become Ready
       command: kubectl wait --for=condition=Ready node --all --timeout=300s
@@ -13,12 +19,6 @@
       retries: 10
       delay: 10
       ignore_errors: no
-
-    - name: Adjust kubeconfig permissions for non-root access
-      ansible.builtin.file:
-        path: /etc/rancher/k3s/k3s.yaml
-        mode: '0644'  # Allows read access for other users
-      become: yes
 
     - name: Set up kubeconfig for the user
       ansible.builtin.file:
@@ -32,7 +32,8 @@
         src: /etc/rancher/k3s/k3s.yaml
         dest: /home/user/.kube/config
         owner: user
-        mode: '0600'
+        group: user
+        mode: '0644'
 
     - name: Add KUBECONFIG to user’s environment
       ansible.builtin.lineinfile:
@@ -43,18 +44,31 @@
 
     - name: Ensure rancher registries.yaml is present
       copy:
-          src: files/registries.yaml
-          dest: /etc/rancher/k3s/registries.yaml
-          owner: root
-          group: root
-          mode: '0644'  
+        src: files/registries.yaml
+        dest: /etc/rancher/k3s/registries.yaml
+        owner: root
+        group: root
+        mode: '0644'  
     
     - name: Restart k3s service
       service:
         name: k3s
         state: restarted
-        become: yes
-        
+        enabled: yes
+
+    - name: Wait for k3s service to be active
+      ansible.builtin.shell: systemctl show -p ActiveState k3s | grep -q "ActiveState=active"
+      register: k3s_status
+      until: k3s_status.rc == 0
+      retries: 10
+      delay: 10
+      changed_when: false
+
+    - name: Adjust kubeconfig permissions for non-root access
+      ansible.builtin.file:
+        path: /etc/rancher/k3s/k3s.yaml
+        mode: '0644'  
+
     - name: Add Rook Helm repo
       ansible.builtin.command: helm repo add rook-release https://charts.rook.io/release
       args:
