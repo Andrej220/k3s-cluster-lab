@@ -52,11 +52,12 @@ runcmd:
 
   - 'bash /mnt/scripts/helm_setup.sh || exit 1'
   - 'bash /mnt/scripts/ansible_deployment.sh || exit 1'
-  - 'sudo -i -u user bash /mnt/scripts/rook_ceph_install.sh || exit 1'
+  #- 'sudo -i -u user bash /mnt/scripts/rook_ceph_install.sh || exit 1'
   - 'sudo -i -u user bash /mnt/scripts/monitoring_tools_setup.sh || exit 1'
-  - 'sudo -i -u user bash /mnt/scripts/swagger_petstore_setup.sh || exit 1'
+  # - 'sudo -i -u user bash /mnt/scripts/swagger_petstore_setup.sh || exit 1'
   - 'sudo -i -u user bash /mnt/scripts/promtail_setup.sh || exit 1'
   - 'sudo -i -u user bash /mnt/scripts/argocd_setup.sh || exit 1'
+  - 'sudo -i -u user bash /mnt/scripts/tekton_install.sh'
   - 'sudo -i -u user bash /mnt/scripts/final_verification.sh'
 
 #  - 'docker run -d --name otel-collector --memory=2g --cpus=2 -p 4317:4317 -p 55680:55680 otel/opentelemetry-collector:latest'   
