@@ -25,24 +25,24 @@ echo "Waiting for Tektone deployment to be available..."
 kubectl wait --for=condition=available --timeout=300s deployment/tekton-pipelines-controller -n tekton-pipelines
 
 
-mkdir -p ~/.ssh
-chmod 700 ~/.ssh
-rm -f ~/.ssh/github*
+mkdir -p /tmp/ssh
+chmod 700 /tmp/ssh
+rm -f /tmp/ssh/github*
 
 echo "Generating SSH key..."
-ssh-keygen -t rsa -b 4096 -f ~/.ssh/github -N '' -C "tekton-pipeline-key"
+ssh-keygen -t rsa -b 4096 -f /tmp/ssh/github -N '' -C "tekton-pipeline-key"
 
-chmod 600 ~/.ssh/github
-chmod 644 ~/.ssh/github.pub
+chmod 600 /tmp/ssh/github
+chmod 644 /tmp/ssh/github.pub
 
-if [[ ! -f ~/.ssh/github || ! -f ~/.ssh/github.pub ]]; then
-    echo "Error: SSH key files not found in ~/.ssh/"
+if [[ ! -f /tmp/ssh/github || ! -f /tmp/ssh/github.pub ]]; then
+    echo "Error: SSH key files not found in /tmp/ssh/"
     exit 1
 fi
-echo "Validating creating of SSH secrets..."
+echo "Validating of SSH secrets..."
 kubectl create secret generic git-ssh-key \
-    --from-file=ssh-privatekey=~/.ssh/github \
-    --from-file=ssh-publickey=~/.ssh/github.pub \
+    --from-file=ssh-privatekey=/tmp/ssh/github \
+    --from-file=ssh-publickey=/tmp/ssh/github.pub \
     --type=kubernetes.io/ssh-auth --dry-run=client -o yaml 2>&1
 if [[ $? -ne 0 ]]; then
     echo "Error: Creating SSH secret validation failed"
@@ -51,8 +51,8 @@ if [[ $? -ne 0 ]]; then
 fi
 echo "Creating Kubernetes secret for SSH keys..."
 kubectl create secret generic git-ssh-key \
-            --from-file=ssh-privatekey=~/.ssh/github  \
-            --from-file=ssh-publickey=~/.ssh/github.pub \
+            --from-file=ssh-privatekey=/tmp/ssh/github  \
+            --from-file=ssh-publickey=/tmp/ssh/github.pub \
             --type=kubernetes.io/ssh-auth
 
 if [[ ! -f "$MANIFESTS_DIR/local-registry.yaml" ]]; then
