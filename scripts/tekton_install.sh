@@ -67,6 +67,22 @@ if [[ $? -ne 0 ]]; then
     exit 1
 fi
 
+if ! curl -s -L -o /dev/null -w "%{http_code}" -I "$TEKTON_APPLICATION_IMG" | grep -q "2.."; then
+    echo "Pipeline application repo is not reachable"
+    exit 1
+fi
+git clone "$TEKTONE_APPLICATION_IMG"
+
+cd "$TEKTON_DIR"  || { 
+    cecho "Failed to change directory to $TEKTON_DIR"
+    exit 1
+    }
+
+./apply.sh || {
+    echo "Failed to start pipeline"
+    exit 1
+}
+
 echo "Tekton installation completed successfully!"
 
 

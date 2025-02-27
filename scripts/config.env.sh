@@ -9,11 +9,13 @@ ANSIBLE_DIR="$FILES_DIR/ansible"
 ARGOSRV="localhost:8443"
 ARGOUSR="admin"
 ARGOPWD="adminadmin"
+TEKTON_DIR="nginx-img/.tekton"
 
 # URLs
 HELM_INSTALL_URL="https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3"
 ARGOCD_INSTALL_URL="https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml"
 ARGOCD_CLI_URL="https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64"
+TEKTON_APPLICATION_IMG="https://github.com/Andrej220/nginx-image.git"
 
 # Kubernetes Namespaces
 MONITORING_NAMESPACE="monitoring"
@@ -29,7 +31,7 @@ ROOK_REPO="https://charts.rook.io/release"
 
 # File Paths
 ARGOCD_NAMESPACE_MANIFEST="$MANIFESTS_DIR/argocd_namespace.yaml"
-ARGOCD_LOADBALANCER_MANIFEST="$MANIFESTS_DIR/argocd-loadbalancer.yaml"
+ARGOCD_LOADBALANCER_MANIFEST="$MANIFESTS_DIR/argocd_loadbalancer.yaml"
 ROOK_VALUES_FILE="$FILES_DIR/rook_values.yaml"
 CEPH_CLUSTER_MANIFEST="$FILES_DIR/ceph_cluster.yaml"
 BLOCKPOOL_MANIFEST="$FILES_DIR/blockpool.yaml"
