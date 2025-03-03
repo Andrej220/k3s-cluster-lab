@@ -1,6 +1,0 @@
-mirrors:
-  "10.0.2.15:30996":
-    endpoint:
-      - "http://localhost:30996"
-
-#/etc/rancher/k3s/registries.yaml
