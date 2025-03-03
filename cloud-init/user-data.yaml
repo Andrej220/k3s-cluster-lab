@@ -44,6 +44,8 @@ packages:
   - docker-ce-cli
 
 runcmd:
+  - echo "{HOSTNAME}" > /etc/hostname
+  - hostnamectl set-hostname "{HOSTNAME}"
   # SSH setup
   - [ systemctl, enable, ssh ]
   - [ systemctl, start, ssh ]
@@ -51,7 +53,7 @@ runcmd:
   - 'sudo mount /dev/cdrom /mnt || exit 1'
 
   - 'bash /mnt/scripts/helm_setup.sh || exit 1'
-  - 'bash /mnt/scripts/ansible_deployment.sh || exit 1'
+  - 'bash /mnt/scripts/ansible_deployment.sh "{HOSTNAME}" || exit 1'
   #- 'sudo -i -u user bash /mnt/scripts/rook_ceph_install.sh || exit 1'
   - 'sudo -i -u user bash /mnt/scripts/monitoring_tools_setup.sh || exit 1'
   # - 'sudo -i -u user bash /mnt/scripts/swagger_petstore_setup.sh || exit 1'

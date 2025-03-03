@@ -63,6 +63,7 @@ read_config: check_yq
 	#$(eval disk3_SIZE := $(DISK_SIZE))
 	#$(eval disk4_SIZE := $(DISK_SIZE))
 	$(eval DIRECTORIES := $(VM_DIR) $(CLOUD_INIT_DIR) )
+	$(eval HOSTNAME := $(shell ./yq -e '.resources.hostname // "default-host"' $(CONFIG_FILE)))
 
 .PHONY: check-tools
 check-tools:
@@ -153,13 +154,7 @@ makeiso:
 		echo "Deleting script files"; \
 		rm -rf $(CLOUD_INIT_DIR)$(SCRIPTS_DIR); \
 	fi
-	# @if [  -f "$(GRAFANA_YAML)" ]; then \
-	#echo "$(GRAFANA_YAML) was found, replacing $(GRAFANA_CONTENT) with content  $(GRAFANA_YAML) and creating $(USER_DATA)"; \
-	# 	$(AWK) '/$(GRAFANA_CONTENT)/ { system("cat $(GRAFANA_YAML)"); next } { print }' $(USER_DATA_YAML) > $(USER_DATA_MERGED); 
-	# else \
-	# 	echo "$(GRAFANA_YAML) was not found. Copy $(USER_DATA_YAML) to $(USER_DATA)"; \
-	 	cp $(USER_DATA_YAML) $(USER_DATA_MERGED); \
-	# fi 
+	$(AWK) '{gsub(/{HOSTNAME}/, "$(HOSTNAME)")}1' $(USER_DATA_YAML) > $(USER_DATA_MERGED)
 	@mv $(USER_DATA_MERGED) $(USER_DATA) || { echo "Failed to move merged user data"; exit 1; }
 	@cp -r "$(FILES_DIR)"  "$(CLOUD_INIT_DIR)"|| { echo "Failed to copy $(FILES_DIR) "; exit 1; }
 	@cp -r "$(SCRIPTS_DIR)"  "$(CLOUD_INIT_DIR)" || { echo "Failed to copy $(SCRIPTS_DIR)"; exit 1; }

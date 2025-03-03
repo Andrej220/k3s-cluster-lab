@@ -43,12 +43,12 @@
         owner: user
 
     - name: Ensure rancher registries.yaml is present
-      copy:
-        src: files/registries.yaml
+      template:
+        src: registries.yaml.j2
         dest: /etc/rancher/k3s/registries.yaml
-        owner: root
-        group: root
-        mode: '0644'  
+        owner: root 
+        group: root 
+        mode: 0644  
     
     - name: Restart k3s service
       service:

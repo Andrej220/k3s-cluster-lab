@@ -1,0 +1,15 @@
+mirrors:
+  "local-registry.registry.svc.cluster.local:5000":
+    endpoint:
+      - "http://{{ hostname }}.local:30996"
+  "{{ hostname }}.local:30996":
+    endpoint:
+      - "http://{{ hostname }}.local:30996"
+#configs:
+#  "local-registry.registry.svc.cluster.local:5000":
+#    tls:
+#      insecure_skip_verify: true
+
+#"http://k3slab.local:5000"
+#"local-registry.registry.svc.cluster.local:5000":
+#/etc/rancher/k3s/registries.yaml

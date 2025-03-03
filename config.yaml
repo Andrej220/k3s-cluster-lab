@@ -5,6 +5,7 @@ resources:
   cpus: "6"
   baseimage_size: "+40G"
   disksize: "200G"
+  hostname: "docserver"
 
 vm:
   directory: ./vm/
