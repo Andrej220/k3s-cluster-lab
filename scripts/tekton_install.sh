@@ -1,6 +1,5 @@
 #!/bin/bash
 
-set -e
 
 SCRIPT_DIR=$(dirname "$(realpath "${BASH_SOURCE[0]}")")
 if [[ -f "$SCRIPT_DIR/config.env.sh" ]]; then
@@ -71,10 +70,11 @@ if ! curl -s -L -o /dev/null -w "%{http_code}" -I "$TEKTON_APPLICATION_IMG" | gr
     echo "Pipeline application repo is not reachable"
     exit 1
 fi
-git clone "$TEKTONE_APPLICATION_IMG"
+
+git clone "$TEKTON_APPLICATION_IMG" "$TEKTON_REPO_DIR"
 
 cd "$TEKTON_DIR"  || { 
-    cecho "Failed to change directory to $TEKTON_DIR"
+    echo "Failed to change directory to $TEKTON_DIR"
     exit 1
     }
 

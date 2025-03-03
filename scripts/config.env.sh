@@ -9,7 +9,8 @@ ANSIBLE_DIR="$FILES_DIR/ansible"
 ARGOSRV="localhost:8443"
 ARGOUSR="admin"
 ARGOPWD="adminadmin"
-TEKTON_DIR="nginx-img/.tekton"
+TEKTON_REPO_DIR="/tmp/ngix-img"
+TEKTON_DIR="${TEKTON_REPO_DIR}/.tekton"
 
 # URLs
 HELM_INSTALL_URL="https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3"
