@@ -12,8 +12,14 @@ kubectl apply -f "$ARGOCD_NAMESPACE_MANIFEST"
 echo "Installing ArgoCD"
 kubectl apply -n argocd -f "$ARGOCD_INSTALL_URL"
 
-echo "Waiting for ArgoCD to reach Ready state..."
+echo "Waiting for ArgoCD application controller to reach Ready state..."
 kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=argocd-application-controller -n argocd --timeout=300s
+
+echo "Waiting for ArgoCD server to reach Ready state..."
+kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=argocd-server -n argocd --timeout=600s
+
+echo "Waiting for ArgoCD repo server to reach Ready state..."
+kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=argocd-repo-server -n argocd --timeout=300s
 
 echo "Installing loadbalancer"
 kubectl apply -f "$ARGOCD_LOADBALANCER_MANIFEST"
