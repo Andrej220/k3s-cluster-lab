@@ -16,7 +16,7 @@ TEKTON_DIR="${TEKTON_REPO_DIR}/.tekton"
 HELM_INSTALL_URL="https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3"
 ARGOCD_INSTALL_URL="https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml"
 ARGOCD_CLI_URL="https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64"
-TEKTON_APPLICATION_IMG="https://github.com/Andrej220/nginx-image.git"
+TEKTON_APPLICATION_IMG="https://github.com/Andrej220/HAM.git"
 
 # Kubernetes Namespaces
 MONITORING_NAMESPACE="monitoring"
