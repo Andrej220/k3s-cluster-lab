@@ -2,48 +2,48 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: nginx-test
+  name: ham-test
   labels:
-    app: nginx-test
+    app: ham-test
 --- 
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: nginx-prod
+  name: ham-prod
   labels:
-    app: nginx-prod
+    app: ham-prod
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: nginx-test
+  name: ham-test
   namespace: argocd
 spec:
   project: default
   source:
-    repoURL: https://github.com/Andrej220/nginx.git
+    repoURL: https://github.com/Andrej220/HAM-gitops.git
     targetRevision: test
     path:  overlays/test
   destination:
     server: https://kubernetes.default.svc
-    namespace: nginx-test
+    namespace: ham-test
   syncPolicy:
     automated: {}
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: nginx-prod
+  name: ham-prod
   namespace: argocd
 spec:
   project: default
   source:
-    repoURL: https://github.com/Andrej220/nginx.git
+    repoURL: https://github.com/Andrej220/HAM-gitops.git
     targetRevision: master
     path: overlays/production
   destination:
     server: https://kubernetes.default.svc
-    namespace: nginx-prod
+    namespace: ham-prod
   syncPolicy:
     automated:
       prune: true
