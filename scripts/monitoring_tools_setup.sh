@@ -5,6 +5,9 @@ set -e
 SCRIPT_DIR=$(dirname "$(realpath "${BASH_SOURCE[0]}")")
 source "$SCRIPT_DIR"/config.env.sh
 
+#rancher/local-path-provisioner
+kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml
+
 echo "Installing Grafana"
 echo "Installing namespace - monitoring"
 kubectl apply -f "$MANIFESTS_DIR"/monitoring_namespace.yaml
